@@ -65,12 +65,12 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 font-sans antialiased selection:bg-emerald-500 selection:text-white">
-      {/* Header */}
-      <Header />
-
-      {/* Fast-Track 2-3 Min Judge Tour Bar */}
-      <JudgeDemoTourBar />
+    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 font-sans antialiased selection:bg-emerald-500 selection:text-white overflow-x-hidden">
+      {/* Sticky Top Navigation & Tour Bar */}
+      <div className="sticky top-0 z-40 flex flex-col">
+        <Header />
+        <JudgeDemoTourBar />
+      </div>
 
       {/* Main View Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">

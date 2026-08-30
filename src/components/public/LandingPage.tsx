@@ -64,9 +64,9 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
               onClick={() => setCurrentView('submit-challenge')}
-              className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg hover:shadow-emerald-600/30 transition-all flex items-center gap-2"
+              className="px-6 h-[52px] bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg hover:shadow-emerald-600/30 transition-all flex items-center justify-center gap-2"
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-4 h-4 shrink-0" />
               <span>Submit a Community Challenge</span>
             </button>
 
@@ -75,9 +75,9 @@ export const LandingPage: React.FC = () => {
                 setIsDemoTourActive(true);
                 goToDemoStep(1);
               }}
-              className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 rounded-xl text-xs sm:text-sm font-bold shadow-lg transition-all flex items-center gap-2"
+              className="px-6 h-[52px] bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 rounded-xl text-xs sm:text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2"
             >
-              <Sparkles className="w-4 h-4 text-slate-950 fill-slate-950" />
+              <Sparkles className="w-4 h-4 text-slate-950 fill-slate-950 shrink-0" />
               <span>Launch 3-Min Fast-Track Judge Tour</span>
             </button>
           </div>

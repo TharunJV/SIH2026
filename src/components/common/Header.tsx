@@ -65,55 +65,57 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs">
+    <header className="bg-white border-b border-slate-200 shadow-xs relative z-10">
       {/* Top Official Banner */}
-      <div className="bg-slate-900 text-slate-200 text-xs px-4 py-1.5 flex flex-wrap justify-between items-center border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 font-medium text-amber-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            SIH 2026 Problem Statement #26043
-          </span>
-          <span className="hidden sm:inline text-slate-400">|</span>
-          <span className="hidden sm:inline text-slate-300">
-            Government of Jharkhand &bull; Department of Higher & Technical Education
-          </span>
-        </div>
-        <div className="flex items-center gap-4 text-xs">
-          <button
-            onClick={() => setIsDemoTourActive(!isDemoTourActive)}
-            className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded font-semibold transition-all ${
-              isDemoTourActive ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-900 fill-amber-900" />
-            <span>Judge Fast-Track Tour</span>
-          </button>
-          <div className="hidden md:flex items-center gap-1.5 text-slate-400">
-            <Globe className="w-3.5 h-3.5" />
-            <span className="text-slate-200 font-medium">English</span>
-            <span>/</span>
-            <span className="hover:text-white cursor-pointer">हिन्दी</span>
-            <span>/</span>
-            <span className="hover:text-white cursor-pointer">ᱥᱟᱱᱛᱟᱲᱤ</span>
+      <div className="bg-slate-900 text-slate-200 text-xs border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex flex-wrap justify-between items-center">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="inline-flex items-center gap-1 font-medium text-amber-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+              <span>SIH 2026 Problem Statement #26043</span>
+            </span>
+            <span className="hidden sm:inline text-slate-400">|</span>
+            <span className="hidden sm:inline text-slate-300">
+              Government of Jharkhand &bull; Department of Higher & Technical Education
+            </span>
+          </div>
+          <div className="flex items-center gap-4 text-xs mt-1 sm:mt-0 shrink-0">
+            <button
+              onClick={() => setIsDemoTourActive(!isDemoTourActive)}
+              className={`flex items-center gap-1.5 px-2.5 h-6 rounded font-semibold transition-all ${
+                isDemoTourActive ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-900 fill-amber-900 shrink-0" />
+              <span>Judge Fast-Track Tour</span>
+            </button>
+            <div className="hidden md:flex items-center gap-1.5 text-slate-400">
+              <Globe className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-slate-200 font-medium">English</span>
+              <span>/</span>
+              <span className="hover:text-white cursor-pointer">हिन्दी</span>
+              <span>/</span>
+              <span className="hover:text-white cursor-pointer">ᱥᱟᱱᱛᱟᱲᱤ</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18">
+        <div className="flex flex-wrap items-center justify-between min-h-[72px] py-2 gap-4">
           {/* Logo & Emblem */}
           <div
-            className="flex items-center gap-3 cursor-pointer select-none"
+            className="flex items-center gap-3 cursor-pointer select-none shrink-0"
             onClick={() => setCurrentView('landing')}
           >
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-900 flex items-center justify-center text-white shadow-md border border-emerald-600/30">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-900 flex items-center justify-center text-white shadow-md border border-emerald-600/30 shrink-0">
               <div className="text-center font-black tracking-tight leading-none">
                 <span className="text-sm text-amber-400 font-bold block">JH</span>
                 <span className="text-[10px] text-white/90">INNOV</span>
               </div>
             </div>
-            <div>
+            <div className="shrink-0">
               <div className="flex items-center gap-2">
                 <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-none">
                   JH Innovation Connect
@@ -122,19 +124,19 @@ export const Header: React.FC = () => {
                   Govt of Jharkhand
                 </span>
               </div>
-              <p className="text-xs text-slate-600 font-normal mt-0.5 hidden sm:block">
+              <p className="text-xs text-slate-600 font-normal mt-0.5 hidden sm:block whitespace-nowrap">
                 Societal Innovation Collaboration Portal &bull; HEIs & Industry
               </p>
             </div>
           </div>
 
           {/* Center Links (Desktop) */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden xl:flex items-center justify-center gap-1 mx-2 overflow-hidden">
             {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => setCurrentView(link.id as any)}
-                className={`px-3 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
+                className={`px-2 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap ${
                   currentView === link.id
                     ? 'bg-emerald-50 text-emerald-800 font-bold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -146,11 +148,11 @@ export const Header: React.FC = () => {
           </nav>
 
           {/* Right Action Controls */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Quick Submit Button */}
             <button
               onClick={() => setCurrentView('submit-challenge')}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow"
+              className="hidden sm:inline-flex items-center justify-center gap-1.5 px-3.5 h-10 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Submit Challenge</span>
@@ -161,7 +163,7 @@ export const Header: React.FC = () => {
               href="/jh-innovation-connect.zip"
               download="jh-innovation-connect.zip"
               title="Download Full Project Archive (.ZIP)"
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg border border-slate-300 shadow-2xs transition-all"
+              className="inline-flex items-center justify-center gap-1.5 px-3 h-10 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg border border-slate-300 shadow-2xs transition-all"
             >
               <Download className="w-3.5 h-3.5 text-slate-700" />
               <span className="hidden md:inline">Download ZIP</span>
@@ -171,7 +173,7 @@ export const Header: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg relative transition-colors"
+                className="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg relative transition-colors"
                 title="Notifications"
               >
                 <Bell className="w-5 h-5" />
@@ -236,7 +238,7 @@ export const Header: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsRoleMenuOpen(!isRoleMenuOpen)}
-                className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50/80 hover:bg-slate-100 transition-all text-left"
+                className="flex items-center gap-2 pl-2 pr-3 h-10 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50/80 hover:bg-slate-100 transition-all text-left"
               >
                 <div className="w-7 h-7 rounded-full bg-emerald-700 text-white font-bold text-xs flex items-center justify-center ring-1 ring-emerald-600/30 overflow-hidden">
                   {currentUser.avatarUrl ? (
@@ -322,7 +324,7 @@ export const Header: React.FC = () => {
             {/* Mobile Navigation Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
             >
               <Layers className="w-5 h-5" />
             </button>
