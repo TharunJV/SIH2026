@@ -62,13 +62,15 @@ export const Header: React.FC = () => {
           {/* Right Action Controls */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Quick Submit Button */}
-            <button
-              onClick={() => setCurrentView('submit-challenge')}
-              className="hidden sm:inline-flex items-center justify-center gap-1.5 px-3.5 h-10 bg-[#3a5a40] hover:bg-[#2c4431] text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Submit Challenge</span>
-            </button>
+            {currentView !== 'citizen-login' && currentView !== 'login' && (
+              <button
+                onClick={() => setCurrentView('submit-challenge')}
+                className="hidden sm:inline-flex items-center justify-center gap-1.5 px-3.5 h-10 bg-[#3a5a40] hover:bg-[#2c4431] text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Submit Challenge</span>
+              </button>
+            )}
 
             {/* Mobile Navigation Toggle */}
             <button

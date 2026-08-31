@@ -31,13 +31,17 @@ export const RoleSelectionPage: React.FC = () => {
 
   const handleRoleSelected = (roleConfig: RoleConfig) => {
     setActiveRoleConfig(roleConfig);
-    switchRole(roleConfig.role);
-    showToast(
-      'success',
-      `Role Activated: ${roleConfig.name}`,
-      `Logged in to ${roleConfig.name} dashboard environment.`
-    );
-    setCurrentView(roleConfig.targetView as any);
+    if (roleConfig.id === 'citizen' || roleConfig.role === 'citizen' || roleConfig.name === 'CITIZEN / COMMUNITY') {
+      setCurrentView('citizen-login');
+    } else {
+      switchRole(roleConfig.role);
+      showToast(
+        'success',
+        `Role Activated: ${roleConfig.name}`,
+        `Logged in to ${roleConfig.name} dashboard environment.`
+      );
+      setCurrentView(roleConfig.targetView as any);
+    }
   };
 
   const handleQuickLogin = (e: React.FormEvent) => {

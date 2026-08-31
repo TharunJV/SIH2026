@@ -10,6 +10,7 @@ export type AppView =
   | 'landing'
   | 'role-selection'
   | 'login'
+  | 'citizen-login'
   | 'about'
   | 'how-it-works'
   | 'explore-challenges'
@@ -289,6 +290,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     refreshData();
   }, [currentUser.id]);
 
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state && e.state.view) {
+        setCurrentView(e.state.view);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -297,7 +308,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         currentRole: currentUser.role,
         switchRole,
         currentView,
-        setCurrentView,
+        setCurrentView: (view: AppView) => {
+          setCurrentView(view);
+          try {
+            if (window.history.state?.view !== view) {
+              window.history.pushState({ view }, '', `#${view}`);
+            }
+          } catch (e) {
+            // Ignore history state errors if restricted
+          }
+        },
         selectedChallengeId,
         setSelectedChallengeId,
         selectedProjectId,

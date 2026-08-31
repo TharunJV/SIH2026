@@ -22,6 +22,7 @@ import { ProjectWorkspace } from './components/project/ProjectWorkspace';
 import { JharkhandMap } from './components/map/JharkhandMap';
 import { PublicImpactDashboard } from './components/impact/PublicImpactDashboard';
 import { RoleSelectionPage } from './components/public/RoleSelectionPage';
+import { CitizenLoginPage } from './components/citizen/CitizenLoginPage';
 
 const AppContent: React.FC = () => {
   const { currentView, setCurrentView } = useApp();
@@ -37,6 +38,8 @@ const AppContent: React.FC = () => {
       case 'role-selection':
       case 'login':
         return <RoleSelectionPage />;
+      case 'citizen-login':
+        return <CitizenLoginPage />;
       case 'explore-challenges':
         return <ExploreChallengesPage />;
       case 'submit-challenge':
@@ -86,9 +89,11 @@ const AppContent: React.FC = () => {
         <AuthModal />
 
         {/* Footer */}
-        <div className="bg-[#f2efe9] border-t border-[#e6e2d8]">
-          <Footer />
-        </div>
+        {currentView !== 'citizen-login' && currentView !== 'login' && (
+          <div className="bg-[#f2efe9] border-t border-[#e6e2d8]">
+            <Footer />
+          </div>
+        )}
       </div>
     </div>
   );
