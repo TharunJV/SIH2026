@@ -7,7 +7,6 @@ import {
   Search,
   User as UserIcon,
   ChevronDown,
-  Globe,
   Building2,
   GraduationCap,
   Briefcase,
@@ -28,10 +27,7 @@ export const Header: React.FC = () => {
     unreadNotifsCount,
     notifications,
     markNotificationAsRead,
-    isDemoTourActive,
-    setIsDemoTourActive,
     goToDemoStep,
-    currentDemoStep,
     setIsAuthModalOpen,
   } = useApp();
 
@@ -66,41 +62,6 @@ export const Header: React.FC = () => {
 
   return (
     <header className="bg-transparent border-b border-[#e6e2d8]/50 relative z-10">
-      {/* Top Official Banner */}
-      <div className="bg-[#2c2b29] text-[#e6e2d8] text-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex flex-wrap justify-between items-center">
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="inline-flex items-center gap-1 font-medium text-[#d89753]">
-              <span className="w-2 h-2 rounded-full bg-[#6c8570] animate-pulse shrink-0"></span>
-              <span>SIH 2026 Problem Statement #26043</span>
-            </span>
-            <span className="hidden sm:inline text-[#5c5b59]">|</span>
-            <span className="hidden sm:inline text-[#b6b4b1]">
-              Government of Jharkhand &bull; Department of Higher & Technical Education
-            </span>
-          </div>
-          <div className="flex items-center gap-4 text-xs mt-1 sm:mt-0 shrink-0">
-            <button
-              onClick={() => setIsDemoTourActive(!isDemoTourActive)}
-              className={`flex items-center gap-1.5 px-2.5 h-6 rounded font-semibold transition-all ${
-                isDemoTourActive ? 'bg-[#d89753] text-[#2c2b29] shadow-sm' : 'bg-[#403e3c] text-[#d6d4d1] hover:bg-[#52504e]'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#5c3b1a] fill-[#5c3b1a] shrink-0" />
-              <span>Judge Fast-Track Tour</span>
-            </button>
-            <div className="hidden md:flex items-center gap-1.5 text-[#868481]">
-              <Globe className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-[#e6e2d8] font-medium">English</span>
-              <span>/</span>
-              <span className="hover:text-white cursor-pointer">हिन्दी</span>
-              <span>/</span>
-              <span className="hover:text-white cursor-pointer">ᱥᱟᱱᱛᱟᱲᱤ</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between min-h-[72px] py-2 gap-4">
