@@ -65,17 +65,17 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white border-b border-slate-200 shadow-xs relative z-10">
+    <header className="bg-transparent border-b border-[#e6e2d8]/50 relative z-10">
       {/* Top Official Banner */}
-      <div className="bg-slate-900 text-slate-200 text-xs border-b border-slate-800">
+      <div className="bg-[#2c2b29] text-[#e6e2d8] text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex flex-wrap justify-between items-center">
           <div className="flex items-center gap-2 shrink-0">
-            <span className="inline-flex items-center gap-1 font-medium text-amber-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+            <span className="inline-flex items-center gap-1 font-medium text-[#d89753]">
+              <span className="w-2 h-2 rounded-full bg-[#6c8570] animate-pulse shrink-0"></span>
               <span>SIH 2026 Problem Statement #26043</span>
             </span>
-            <span className="hidden sm:inline text-slate-400">|</span>
-            <span className="hidden sm:inline text-slate-300">
+            <span className="hidden sm:inline text-[#5c5b59]">|</span>
+            <span className="hidden sm:inline text-[#b6b4b1]">
               Government of Jharkhand &bull; Department of Higher & Technical Education
             </span>
           </div>
@@ -83,15 +83,15 @@ export const Header: React.FC = () => {
             <button
               onClick={() => setIsDemoTourActive(!isDemoTourActive)}
               className={`flex items-center gap-1.5 px-2.5 h-6 rounded font-semibold transition-all ${
-                isDemoTourActive ? 'bg-amber-500 text-slate-950 shadow-sm' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                isDemoTourActive ? 'bg-[#d89753] text-[#2c2b29] shadow-sm' : 'bg-[#403e3c] text-[#d6d4d1] hover:bg-[#52504e]'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-900 fill-amber-900 shrink-0" />
+              <Sparkles className="w-3.5 h-3.5 text-[#5c3b1a] fill-[#5c3b1a] shrink-0" />
               <span>Judge Fast-Track Tour</span>
             </button>
-            <div className="hidden md:flex items-center gap-1.5 text-slate-400">
+            <div className="hidden md:flex items-center gap-1.5 text-[#868481]">
               <Globe className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-slate-200 font-medium">English</span>
+              <span className="text-[#e6e2d8] font-medium">English</span>
               <span>/</span>
               <span className="hover:text-white cursor-pointer">हिन्दी</span>
               <span>/</span>
@@ -109,23 +109,17 @@ export const Header: React.FC = () => {
             className="flex items-center gap-3 cursor-pointer select-none shrink-0"
             onClick={() => setCurrentView('landing')}
           >
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-900 flex items-center justify-center text-white shadow-md border border-emerald-600/30 shrink-0">
-              <div className="text-center font-black tracking-tight leading-none">
-                <span className="text-sm text-amber-400 font-bold block">JH</span>
-                <span className="text-[10px] text-white/90">INNOV</span>
-              </div>
-            </div>
-            <div className="shrink-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-none">
-                  JH Innovation Connect
-                </h1>
-                <span className="hidden xl:inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  Govt of Jharkhand
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 font-normal mt-0.5 hidden sm:block whitespace-nowrap">
-                Societal Innovation Collaboration Portal &bull; HEIs & Industry
+            <img
+              src="/gov-jh-emblem.png"
+              alt="Government of Jharkhand"
+              style={{ height: '64px', width: 'auto', objectFit: 'contain', display: 'block' }}
+            />
+            <div className="shrink-0 hidden md:block border-l border-slate-300 pl-3 ml-2 py-1">
+              <h1 className="text-base sm:text-lg font-extrabold text-slate-800 tracking-tight leading-none">
+                Government of Jharkhand
+              </h1>
+              <p className="text-xs text-slate-500 font-semibold mt-1 whitespace-nowrap">
+                Department of Higher &amp; Technical Education
               </p>
             </div>
           </div>
@@ -138,8 +132,8 @@ export const Header: React.FC = () => {
                 onClick={() => setCurrentView(link.id as any)}
                 className={`px-2 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap ${
                   currentView === link.id
-                    ? 'bg-emerald-50 text-emerald-800 font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#fdf5eb] text-[#c9833b] font-bold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-[#f7f5f0]'
                 }`}
               >
                 {link.label}
@@ -152,7 +146,7 @@ export const Header: React.FC = () => {
             {/* Quick Submit Button */}
             <button
               onClick={() => setCurrentView('submit-challenge')}
-              className="hidden sm:inline-flex items-center justify-center gap-1.5 px-3.5 h-10 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow"
+              className="hidden sm:inline-flex items-center justify-center gap-1.5 px-3.5 h-10 bg-[#3a5a40] hover:bg-[#2c4431] text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Submit Challenge</span>

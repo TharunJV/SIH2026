@@ -43,7 +43,7 @@ export const JudgeDemoTourBar: React.FC = () => {
   const progressPercent = Math.round((currentDemoStep / JUDGE_DEMO_STEPS.length) * 100);
 
   return (
-    <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 text-white border-b border-amber-500/30 shadow-lg relative z-0 transition-all">
+    <div className="bg-[#2c2b29] text-[#e6e2d8] border-b border-[#d89753]/30 shadow-sm relative z-0 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         {/* Step Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">

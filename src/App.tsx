@@ -65,24 +65,28 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 font-sans antialiased selection:bg-emerald-500 selection:text-white overflow-x-hidden">
-      {/* Sticky Top Navigation & Tour Bar */}
-      <div className="sticky top-0 z-40 flex flex-col">
-        <Header />
-        <JudgeDemoTourBar />
+    <div className="min-h-screen bg-[#f7f5f0] text-slate-800 font-sans antialiased selection:bg-[#6c8570] selection:text-white py-0 sm:py-6 lg:py-8 px-0 sm:px-6 lg:px-10 overflow-hidden">
+      <div className="flex flex-col min-h-[calc(100vh-3rem)] max-w-[1440px] mx-auto bg-[#FCFAF5] shadow-2xl shadow-slate-300/40 rounded-none sm:rounded-[24px] border-0 sm:border border-[#e6e2d8] overflow-hidden relative">
+        {/* Sticky Top Navigation & Tour Bar */}
+        <div className="sticky top-0 z-40 flex flex-col bg-white/95 backdrop-blur-md border-b border-[#e6e2d8]/60">
+          <Header />
+          <JudgeDemoTourBar />
+        </div>
+
+        {/* Main View Area */}
+        <main className="flex-1 w-full mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-10">
+          {renderView()}
+        </main>
+
+        {/* Global Alerts & Modals */}
+        <ToastContainer />
+        <AuthModal />
+
+        {/* Footer */}
+        <div className="bg-[#f2efe9] border-t border-[#e6e2d8]">
+          <Footer />
+        </div>
       </div>
-
-      {/* Main View Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {renderView()}
-      </main>
-
-      {/* Global Alerts & Modals */}
-      <ToastContainer />
-      <AuthModal />
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
