@@ -6,6 +6,7 @@ import { projectService } from '../services/projectService';
 import { communicationService } from '../services/communicationService';
 
 export type AppView =
+  | 'welcome'
   | 'landing'
   | 'role-selection'
   | 'login'
@@ -174,7 +175,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User>(MOCK_USERS[0]); // Sunita Devi (Citizen)
-  const [currentView, setCurrentView] = useState<AppView>('landing');
+  const [currentView, setCurrentView] = useState<AppView>('welcome');
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>('JH-2026-001248');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>('PROJ-JH-2026-0081');
   const [challenges, setChallenges] = useState<Challenge[]>(MOCK_CHALLENGES);

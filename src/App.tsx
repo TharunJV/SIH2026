@@ -7,6 +7,7 @@ import { ToastContainer } from './components/common/ToastContainer';
 import { AuthModal } from './components/common/AuthModal';
 
 // Pages & Modules
+import { WelcomePage } from './components/public/WelcomePage';
 import { LandingPage } from './components/public/LandingPage';
 import { ExploreChallengesPage } from './components/public/ExploreChallengesPage';
 import { UniversitiesPage } from './components/public/UniversitiesPage';
@@ -24,7 +25,11 @@ import { PublicImpactDashboard } from './components/impact/PublicImpactDashboard
 import { RoleSelectionPage } from './components/public/RoleSelectionPage';
 
 const AppContent: React.FC = () => {
-  const { currentView } = useApp();
+  const { currentView, setCurrentView } = useApp();
+
+  if (currentView === 'welcome') {
+    return <WelcomePage onEnter={() => setCurrentView('landing')} />;
+  }
 
   const renderView = () => {
     switch (currentView) {
