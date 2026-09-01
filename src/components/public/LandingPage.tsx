@@ -178,7 +178,7 @@ export const LandingPage: React.FC = () => {
                 <Layers className="w-5 h-5 text-[#8c78a0]" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">2,540</span>
+                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Challenges<br/>Submitted</span>
               </div>
             </div>
@@ -189,7 +189,7 @@ export const LandingPage: React.FC = () => {
                 <ShieldCheck className="w-5 h-5 text-[#6c8570]" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">1,842</span>
+                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Challenges<br/>Validated</span>
               </div>
             </div>
@@ -200,7 +200,7 @@ export const LandingPage: React.FC = () => {
                 <Building2 className="w-5 h-5 text-[#c9833b]" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">47</span>
+                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Universities<br/>Onboarded</span>
               </div>
             </div>
@@ -211,7 +211,7 @@ export const LandingPage: React.FC = () => {
                 <Users className="w-5 h-5 text-[#8c78a0]" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">136</span>
+                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Industry<br/>Partners</span>
               </div>
             </div>
@@ -222,7 +222,7 @@ export const LandingPage: React.FC = () => {
                 <TrendingUp className="w-5 h-5 text-[#c9833b]" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">620</span>
+                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Solutions<br/>In Progress</span>
               </div>
             </div>
@@ -233,7 +233,7 @@ export const LandingPage: React.FC = () => {
                 <Award className="w-5 h-5 text-[#d89753]" />
               </div>
               <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">178</span>
+                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
                 <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Solutions<br/>Deployed</span>
               </div>
             </div>

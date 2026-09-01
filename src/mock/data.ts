@@ -5,7 +5,7 @@ import {
   IndustryPartner,
   NotificationItem,
   Conversation,
-  ChatMessage,
+  ChatMessage,                  
   DistrictMetric,
 } from '../types';
 

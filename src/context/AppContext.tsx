@@ -33,7 +33,8 @@ export type AppView =
   | 'industry-funding'
   | 'project-detail'
   | 'government-dashboard'
-  | 'admin-dashboard';
+  | 'admin-dashboard'
+  | 'stakeholder-login';
 
 export interface ToastMessage {
   id: string;
@@ -170,6 +171,8 @@ interface AppContextType {
   markNotificationAsRead: (id: string) => void;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
+  stakeholderLoginRole: 'university' | 'faculty' | 'industry' | 'startup' | 'government' | null;
+  setStakeholderLoginRole: (role: 'university' | 'faculty' | 'industry' | 'startup' | 'government' | null) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -186,6 +189,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isDemoTourActive, setIsDemoTourActive] = useState<boolean>(true);
   const [currentDemoStep, setCurrentDemoStep] = useState<number>(1);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [stakeholderLoginRole, setStakeholderLoginRole] = useState<'university' | 'faculty' | 'industry' | 'startup' | 'government' | null>(null);
 
   const switchRole = (role: UserRole) => {
     const userMatch = MOCK_USERS.find((u) => u.role === role) || {
