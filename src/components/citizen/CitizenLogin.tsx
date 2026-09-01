@@ -18,7 +18,7 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick })
     setLoading(true);
     setErrorMsg("");
     try {
-      const response = await fetch("http://localhost:3001/api/send-otp", {
+      const response = await fetch("/api/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -54,7 +54,7 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick })
       setLoading(true);
       setErrorMsg("");
       try {
-        const response = await fetch("http://localhost:3001/api/verify-otp", {
+        const response = await fetch("/api/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, otp: otpValue }),

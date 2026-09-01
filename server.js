@@ -20,6 +20,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Serve the built Vite frontend so the API and UI share the same origin in production.
+const distPath = path.join(__dirname, 'dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+}
+
 // Rate limiters
 const otpLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, 
@@ -331,7 +337,14 @@ app.post('/api/verify-otp', verifyLimiter, (req, res) => {
   }
 });
 
+// SPA catch-all: serve index.html for any non-API route so client-side routing works.
+if (fs.existsSync(distPath)) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Backend server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
