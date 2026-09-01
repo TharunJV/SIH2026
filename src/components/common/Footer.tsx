@@ -15,8 +15,8 @@ export const Footer: React.FC = () => {
           {/* Col 1: Government Authority */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="bg-white p-0.5 rounded-md shrink-0 border border-slate-600">
-                <img src="/logo.png" alt="Government of Jharkhand Logo" className="h-8 w-auto rounded-sm object-contain mix-blend-multiply" />
+              <div className="bg-white p-1 rounded-md shrink-0 border border-slate-600">
+                <img src="/gov-jh-emblem.png" alt="Government of Jharkhand Logo" className="h-9 w-auto rounded-sm object-contain" />
               </div>
               <div>
                 <h3 className="font-bold text-[#e6e2d8] text-sm">Government of Jharkhand</h3>

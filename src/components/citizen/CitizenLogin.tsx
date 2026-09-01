@@ -10,10 +10,30 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick })
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpSent, setOtpSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     if (!email) return;
-    setOtpSent(true);
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      const response = await fetch("http://localhost:3001/api/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send OTP");
+      }
+      setOtpSent(true);
+      setOtp(["", "", "", "", "", ""]);
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOtpChange = (value: string, index: number) => {
@@ -28,9 +48,27 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick })
     }
   };
 
-  const handleLogin = () => {
-    if (otp.join("").length === 6) {
-      onLogin?.();
+  const handleLogin = async () => {
+    const otpValue = otp.join("");
+    if (otpValue.length === 6) {
+      setLoading(true);
+      setErrorMsg("");
+      try {
+        const response = await fetch("http://localhost:3001/api/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp: otpValue }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Invalid OTP");
+        }
+        onLogin?.();
+      } catch (err: any) {
+        setErrorMsg(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -66,6 +104,12 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick })
         </p>
       </div>
 
+      {errorMsg && (
+        <div style={{ color: "#e53e3e", textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "bold", padding: "8px", backgroundColor: "#fff5f5", borderRadius: "6px" }}>
+          {errorMsg}
+        </div>
+      )}
+
       {/* Step 1 */}
       <section className="login-step">
 
@@ -88,15 +132,16 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick })
             placeholder="Enter your Email ID"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
         </div>
 
         <button
           className="gold-button"
           onClick={handleSendOtp}
-          disabled={!email}
+          disabled={!email || loading}
         >
-          <span>Send OTP</span>
+          <span>{loading && !otpSent ? "Sending..." : (otpSent ? "Resend OTP" : "Send OTP")}</span>
           <span className="button-arrow">→</span>
         </button>
       </section>
@@ -135,13 +180,14 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick })
               onChange={(e) =>
                 handleOtpChange(e.target.value, index)
               }
+              disabled={!otpSent || loading}
             />
           ))}
         </div>
 
         <div className="resend-text">
           Didn't receive OTP?{" "}
-          <button type="button">
+          <button type="button" onClick={handleSendOtp} disabled={loading || !email}>
             Resend OTP
           </button>
         </div>
@@ -169,9 +215,9 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick })
         <button
           className="gold-button login-button"
           onClick={handleLogin}
-          disabled={!otpSent || otp.join("").length !== 6}
+          disabled={!otpSent || otp.join("").length !== 6 || loading}
         >
-          <span>Login</span>
+          <span>{loading && otpSent ? "Verifying..." : "Login"}</span>
           <span className="button-arrow">→</span>
         </button>
       </section>
