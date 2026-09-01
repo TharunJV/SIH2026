@@ -3,9 +3,10 @@ import "./CitizenLogin.css";
 
 interface CitizenLoginProps {
   onLogin?: () => void;
+  onRegisterClick?: () => void;
 }
 
-const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin }) => {
+const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin, onRegisterClick }) => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpSent, setOtpSent] = useState(false);
@@ -182,7 +183,7 @@ const CitizenLogin: React.FC<CitizenLoginProps> = ({ onLogin }) => {
 
       <div className="register-text">
         New to the portal?{" "}
-        <button type="button">Register Now</button>
+        <button type="button" onClick={onRegisterClick}>Register Now</button>
       </div>
 
     </div>

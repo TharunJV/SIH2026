@@ -80,7 +80,7 @@ const AppContent: React.FC = () => {
         </div>
 
         {/* Main View Area */}
-        <main className="flex-1 w-full mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-10">
+        <main className={`flex-1 w-full mx-auto px-4 sm:px-8 lg:px-12 ${currentView === 'citizen-login' ? 'py-2 sm:py-3' : 'py-6 sm:py-10'}`}>
           {renderView()}
         </main>
 

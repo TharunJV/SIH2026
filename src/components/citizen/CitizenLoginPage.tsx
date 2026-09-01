@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import CitizenLogin from "./CitizenLogin";
+import CitizenRegister from "./CitizenRegister";
 import { useApp } from "../../context/AppContext";
 
 export const CitizenLoginPage: React.FC = () => {
   const { switchRole, setCurrentView, showToast } = useApp();
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
 
   const handleLoginSuccess = () => {
     switchRole("citizen");
@@ -15,8 +17,18 @@ export const CitizenLoginPage: React.FC = () => {
     setCurrentView("citizen-dashboard");
   };
 
+  const handleRegisterSuccess = () => {
+    switchRole("citizen");
+    showToast(
+      "success",
+      "Registration Successful",
+      "Citizen Account created. Welcome to your Dashboard!"
+    );
+    setCurrentView("citizen-dashboard");
+  };
+
   return (
-    <div className="relative w-full min-h-[calc(100vh-110px)] flex items-center justify-center py-4 px-2 sm:px-4 overflow-hidden rounded-3xl my-1">
+    <div className="relative w-full min-h-[calc(100vh-140px)] flex items-center justify-center py-2 px-2 sm:px-4 overflow-hidden rounded-3xl my-0">
       {/* Layer 1: Background Video */}
       <video
         autoPlay
@@ -40,9 +52,19 @@ export const CitizenLoginPage: React.FC = () => {
       {/* Layer 2: Dark / Subtle Overlay */}
       <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px] z-10" />
 
-      {/* Layer 3 & 4: Centered Citizen Login Card & UI */}
-      <div className="relative z-20 flex justify-center items-center w-full max-w-full my-auto">
-        <CitizenLogin onLogin={handleLoginSuccess} />
+      {/* Layer 3 & 4: Centered Citizen Login or Registration Card */}
+      <div className="relative z-20 flex justify-center items-center w-full max-w-full my-auto py-2">
+        {isRegisterMode ? (
+          <CitizenRegister
+            onLoginClick={() => setIsRegisterMode(false)}
+            onRegisterSuccess={handleRegisterSuccess}
+          />
+        ) : (
+          <CitizenLogin
+            onLogin={handleLoginSuccess}
+            onRegisterClick={() => setIsRegisterMode(true)}
+          />
+        )}
       </div>
     </div>
   );

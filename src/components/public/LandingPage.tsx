@@ -32,8 +32,8 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="space-y-12 pb-8">
-      {/* Premium Hero Section */}
-      <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#fef8f3] via-[#fdf5eb] to-[#f4f2f7] text-slate-800 p-8 sm:p-14 border border-[#eee9e0] shadow-sm">
+      {/* 1. Premium Hero Section */}
+      <section id="hero" className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#fef8f3] via-[#fdf5eb] to-[#f4f2f7] text-slate-800 p-8 sm:p-14 border border-[#eee9e0] shadow-sm">
         {/* Soft Lavender / Peach Gradients */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#eadeeb]/30 rounded-full blur-3xl pointer-events-none -translate-y-32 translate-x-32"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#fcece3]/50 rounded-full blur-3xl pointer-events-none translate-y-32 -translate-x-32"></div>
@@ -241,8 +241,25 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ONE CHALLENGE • CONNECTED ECOSYSTEM EXPLAINER */}
-      <section className="bg-[#fffdfa] rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6">
+      {/* 2. Role-Based Portals — DIRECTLY AFTER HERO */}
+      <section id="select-role" className="space-y-4 pt-4 scroll-mt-24">
+        <div className="text-center max-w-2xl mx-auto space-y-1">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-[#6c8570]">
+            Interactive Multi-Stakeholder Ecosystem
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
+            Select your role to continue
+          </h2>
+          <p className="text-xs text-slate-500 font-medium">
+            Choose the role that best describes you
+          </p>
+        </div>
+
+        <RoleCarousel />
+      </section>
+
+      {/* 3. ONE CHALLENGE • CONNECTED ECOSYSTEM EXPLAINER */}
+      <section id="how-it-works" className="bg-[#fffdfa] rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6 scroll-mt-24">
         <div className="text-center max-w-2xl mx-auto space-y-1">
           <span className="text-[11px] font-bold uppercase tracking-widest text-[#6c8570]">
             One Platform &bull; One Challenge &bull; Multiple Participants
@@ -298,8 +315,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* INTELLIGENT SOLUTION PATHWAYS SECTION */}
-      <section className="bg-white rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6 relative overflow-hidden">
+      {/* 4. INTELLIGENT SOLUTION PATHWAYS SECTION */}
+      <section id="pathways" className="bg-white rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6 relative overflow-hidden scroll-mt-24">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#fcece3]/40 rounded-full blur-3xl pointer-events-none -translate-y-20 translate-x-10"></div>
         <div className="relative z-10 max-w-2xl space-y-1">
           <span className="text-[11px] font-bold uppercase tracking-widest text-[#d89753]">
@@ -342,25 +359,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Role-Based Portals — Infinite Circular Carousel */}
-      <section className="space-y-4 pt-4">
-        <div className="text-center max-w-2xl mx-auto space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[#6c8570]">
-            Interactive Multi-Stakeholder Ecosystem
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-            Select your role to continue
-          </h2>
-          <p className="text-xs text-slate-500 font-medium">
-            Choose the role that best describes you
-          </p>
-        </div>
-
-        <RoleCarousel />
-      </section>
-
-      {/* DISCOVERY & OUTREACH ECOSYSTEM */}
-      <section className="bg-[#fffdfa] rounded-3xl p-6 sm:p-8 border border-[#eee9e0] shadow-sm space-y-4">
+      {/* 5. DISCOVERY & OUTREACH ECOSYSTEM */}
+      <section id="discovery" className="bg-[#fffdfa] rounded-3xl p-6 sm:p-8 border border-[#eee9e0] shadow-sm space-y-4 scroll-mt-24">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#eee9e0] pb-3">
           <div>
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
@@ -395,8 +395,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Community Challenges */}
-      <section className="bg-white rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6">
+      {/* 6. Featured Community Challenges */}
+      <section id="active-challenges" className="bg-white rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6 scroll-mt-24">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#eee9e0] pb-4">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-widest text-[#6c8570]">
