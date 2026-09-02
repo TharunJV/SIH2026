@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ChallengeCategory, ChallengeUrgency } from '../../types';
 import { JHARKHAND_DISTRICTS, CATEGORIES_LIST } from '../../mock/data';
 import { challengeService } from '../../services/challengeService';
+import { speechToTextService } from '../../services/speechToTextService';
 import confetti from 'canvas-confetti';
 import {
   Sparkles,
@@ -30,6 +31,9 @@ import {
   Navigation,
   Image as ImageIcon,
   Plus,
+  Mic,
+  Square,
+  Loader2,
 } from 'lucide-react';
 
 interface AttachedPhoto {
@@ -98,6 +102,200 @@ export const SubmitChallengeForm: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Voice-to-text state
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [recordingError, setRecordingError] = useState<string | null>(null);
+  const [voiceLanguage, setVoiceLanguage] = useState<string>('');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+
+      const recorder = mediaRecorderRef.current;
+      if (recorder) {
+        // Remove onstop first so unmounting cannot start a transcription request.
+        recorder.ondataavailable = null;
+        recorder.onstop = null;
+        recorder.onerror = null;
+
+        if (recorder.state !== 'inactive') {
+          recorder.stop();
+        }
+
+        recorder.stream.getTracks().forEach((track) => track.stop());
+      }
+
+      mediaRecorderRef.current = null;
+      audioChunksRef.current = [];
+    };
+  }, []);
+
+  const handleStartRecording = async () => {
+    if (isRecording || isTranscribing) return;
+
+    setRecordingError(null);
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      const message = 'Microphone recording is not supported in this browser.';
+      setRecordingError(message);
+      showToast('error', 'Microphone Unavailable', message);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      if (!isMountedRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      const mimeTypes = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+      ];
+
+      const supportedMimeType =
+        mimeTypes.find((type) => MediaRecorder.isTypeSupported(type)) || '';
+
+      const recorder = supportedMimeType
+        ? new MediaRecorder(stream, { mimeType: supportedMimeType })
+        : new MediaRecorder(stream);
+
+      audioChunksRef.current = [];
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (event: BlobEvent) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onerror = () => {
+        stream.getTracks().forEach((track) => track.stop());
+        mediaRecorderRef.current = null;
+
+        if (isMountedRef.current) {
+          setIsRecording(false);
+          setRecordingError('The microphone recording failed. Please try again.');
+          showToast('error', 'Recording Failed', 'Please check your microphone and try again.');
+        }
+      };
+
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+
+        const actualMimeType = recorder.mimeType || supportedMimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: actualMimeType,
+        });
+
+        audioChunksRef.current = [];
+        mediaRecorderRef.current = null;
+
+        if (!isMountedRef.current) return;
+
+        setIsRecording(false);
+
+        if (audioBlob.size === 0) {
+          setRecordingError('No audio was recorded. Please try again.');
+          showToast('warning', 'No Audio Recorded', 'Please speak after starting the microphone.');
+          return;
+        }
+
+        setIsTranscribing(true);
+
+        try {
+          // Send a language code only when the user selected a language
+          // with a real ISO-639-1 code. Empty value means Whisper auto-detects.
+          const explicitWhisperLanguageCodes = new Set([
+            'en',
+            'ta',
+            'hi',
+            'bn',
+            'te',
+            'kn',
+            'ml',
+            'mr',
+            'gu',
+            'pa',
+            'ur',
+            'or',
+            'as',
+          ]);
+
+          const languageForWhisper = explicitWhisperLanguageCodes.has(voiceLanguage)
+            ? voiceLanguage
+            : undefined;
+
+          const result = await speechToTextService.transcribe(
+            audioBlob,
+            languageForWhisper
+          );
+
+          if (!isMountedRef.current) return;
+
+          const transcript = result.text.trim();
+
+          if (!transcript) {
+            throw new Error('No speech could be detected.');
+          }
+
+          setSimpleWhatHappened((currentText) => {
+            const existingText = currentText.trim();
+            return existingText ? `${existingText} ${transcript}` : transcript;
+          });
+
+          setRecordingError(null);
+          showToast('success', 'Voice Converted to Text', 'Your spoken description was added to the problem field.');
+        } catch (error) {
+          if (!isMountedRef.current) return;
+
+          const message =
+            error instanceof Error
+              ? error.message
+              : 'Speech transcription failed. Please try again.';
+
+          setRecordingError(message);
+          showToast('error', 'Transcription Failed', message);
+        } finally {
+          if (isMountedRef.current) {
+            setIsTranscribing(false);
+          }
+        }
+      };
+
+      recorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      const message =
+        error instanceof DOMException && error.name === 'NotAllowedError'
+          ? 'Microphone permission was denied. Please allow microphone access and try again.'
+          : 'Unable to access the microphone. Please check your device and browser settings.';
+
+      setRecordingError(message);
+      showToast('error', 'Microphone Access Failed', message);
+    }
+  };
+
+  const handleStopRecording = () => {
+    const recorder = mediaRecorderRef.current;
+
+    if (!recorder || recorder.state === 'inactive') {
+      setIsRecording(false);
+      return;
+    }
+
+    recorder.stop();
+  };
 
   // Live Geolocation Detector Handler
   const handleDetectGeolocation = () => {
@@ -485,11 +683,10 @@ export const SubmitChallengeForm: React.FC = () => {
             <button
               type="button"
               onClick={() => setSubmissionMode('simple')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
-                submissionMode === 'simple'
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${submissionMode === 'simple'
                   ? 'bg-emerald-700 text-white shadow-2xs'
                   : 'text-slate-400 hover:text-white'
-              }`}
+                }`}
             >
               <Smile className="w-3.5 h-3.5" />
               <span>Need Help Explaining? (Simple Mode)</span>
@@ -497,11 +694,10 @@ export const SubmitChallengeForm: React.FC = () => {
             <button
               type="button"
               onClick={() => setSubmissionMode('detailed')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
-                submissionMode === 'detailed'
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${submissionMode === 'detailed'
                   ? 'bg-emerald-700 text-white shadow-2xs'
                   : 'text-slate-400 hover:text-white'
-              }`}
+                }`}
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
               <span>Detailed Submission</span>
@@ -548,6 +744,106 @@ export const SubmitChallengeForm: React.FC = () => {
               onChange={(e) => setSimpleWhatHappened(e.target.value)}
               className="w-full text-xs sm:text-sm p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 leading-relaxed"
             ></textarea>
+
+            {/* Voice-to-Text Input */}
+            <div className="mt-3 p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl">
+              <div className="mb-3">
+                <label
+                  htmlFor="voice-language"
+                  className="block text-[11px] font-bold text-slate-800 mb-1.5"
+                >
+                  Voice Language
+                </label>
+                <select
+                  id="voice-language"
+                  value={voiceLanguage}
+                  onChange={(e) => setVoiceLanguage(e.target.value)}
+                  disabled={isRecording || isTranscribing}
+                  className="w-full sm:max-w-xs text-xs p-2.5 border border-emerald-200 rounded-lg bg-white text-slate-800 font-semibold focus:ring-2 focus:ring-emerald-500 disabled:opacity-60"
+                >
+                  <option value="">Auto Detect Language</option>
+                  <option value="en">English</option>
+                  <option value="ta">தமிழ் — Tamil</option>
+                  <option value="hi">हिन्दी — Hindi</option>
+                  <option value="bn">বাংলা — Bengali</option>
+                  <option value="te">తెలుగు — Telugu</option>
+                  <option value="kn">ಕನ್ನಡ — Kannada</option>
+                  <option value="ml">മലയാളം — Malayalam</option>
+                  <option value="mr">मराठी — Marathi</option>
+                  <option value="gu">ગુજરાતી — Gujarati</option>
+                  <option value="pa">ਪੰਜਾਬੀ — Punjabi</option>
+                  <option value="ur">اردو — Urdu</option>
+                  <option value="or">ଓଡ଼ିଆ — Odia</option>
+                  <option value="as">অসমীয়া — Assamese</option>
+                  <option value="sat">Santali — Auto Detect</option>
+                  <option value="nagpuri">Nagpuri — Auto Detect</option>
+                  <option value="kurukh">Kurukh / Oraon — Auto Detect</option>
+                  <option value="mundari">Mundari — Auto Detect</option>
+                  <option value="khortha">Khortha — Auto Detect</option>
+                  <option value="ho">Ho — Auto Detect</option>
+                  <option value="auto-other">Other Language — Auto Detect</option>
+                </select>
+                <p className="text-[10px] text-slate-600 mt-1.5">
+                  For Santali, Nagpuri, Kurukh, Mundari, Khortha and Ho, automatic detection is used because a dedicated Whisper language code is not being assumed here.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-700 text-white flex items-center justify-center shrink-0">
+                    <Mic className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900">
+                      Prefer speaking? Describe the problem by voice.
+                    </p>
+                    <p className="text-[10px] text-slate-600 mt-0.5">
+                      Your voice is converted to text and added to the description above.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={isRecording ? handleStopRecording : handleStartRecording}
+                  disabled={isTranscribing}
+                  className={`shrink-0 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 ${isRecording
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                      : 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                    }`}
+                >
+                  {isTranscribing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Converting to Text...</span>
+                    </>
+                  ) : isRecording ? (
+                    <>
+                      <Square className="w-3.5 h-3.5 fill-current" />
+                      <span>Stop Recording</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-4 h-4" />
+                      <span>Speak Problem</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {isRecording && (
+                <div className="mt-2 text-[10px] font-semibold text-rose-700 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+                  Recording... Speak clearly, then press Stop Recording.
+                </div>
+              )}
+
+              {recordingError && (
+                <div className="mt-2 text-[10px] font-semibold text-rose-700 flex items-start gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>{recordingError}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Question 2: Where is it happening? (REQUIRED) + GEOLOCATION DETECTOR */}

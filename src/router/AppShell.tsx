@@ -4,18 +4,16 @@ import { Header } from '../components/common/Header';
 import { Footer } from '../components/common/Footer';
 import { ToastContainer } from '../components/common/ToastContainer';
 import { AuthModal } from '../components/common/AuthModal';
+import { AIChatbot } from '../components/chatbot/AIChatbot';
 
 /**
  * AppShell is the persistent layout wrapper for all routes.
  *
- * It renders the sticky Header, then delegates page content to <Outlet />,
- * and conditionally shows the Footer (hidden on login/dashboard routes that
- * have their own full-page layout).
- *
- * Adding a new page never requires touching this file — just add a route in
- * the router index and it gets the shell for free.
+ * It renders the sticky Header, delegates page content to <Outlet />,
+ * conditionally shows the Footer, and displays the AI Chatbot globally.
  */
 const ROUTES_WITHOUT_HEADER = ['/', '/welcome'];
+
 const ROUTES_WITHOUT_FOOTER = [
   '/',
   '/welcome',
@@ -26,7 +24,13 @@ const ROUTES_WITHOUT_FOOTER = [
   '/dashboard/citizen',
   '/citizen-dashboard',
 ];
-const ROUTES_WITH_FULL_VIEWPORT = ['/', '/welcome', '/dashboard/citizen', '/citizen-dashboard'];
+
+const ROUTES_WITH_FULL_VIEWPORT = [
+  '/',
+  '/welcome',
+  '/dashboard/citizen',
+  '/citizen-dashboard',
+];
 
 export const AppShell: React.FC = () => {
   const { pathname, hash } = useLocation();
@@ -36,31 +40,43 @@ export const AppShell: React.FC = () => {
   useEffect(() => {
     if (hash && hash.startsWith('#/')) {
       const cleanPath = hash.replace(/^#/, '');
+
       if (cleanPath && cleanPath !== pathname) {
         navigate(cleanPath, { replace: true });
       }
     }
   }, [hash, pathname, navigate]);
 
-  const showHeader = !ROUTES_WITHOUT_HEADER.some((r) => pathname === r);
-  const showFooter = !ROUTES_WITHOUT_FOOTER.some((r) => pathname === r || pathname.startsWith(r));
-  const isFullViewport = ROUTES_WITH_FULL_VIEWPORT.some((r) => pathname === r || pathname.startsWith(r));
-  const isWelcomePage = pathname === '/' || pathname === '/welcome';
+  const showHeader = !ROUTES_WITHOUT_HEADER.some(
+    (r) => pathname === r
+  );
+
+  const showFooter = !ROUTES_WITHOUT_FOOTER.some(
+    (r) => pathname === r || pathname.startsWith(r)
+  );
+
+  const isFullViewport = ROUTES_WITH_FULL_VIEWPORT.some(
+    (r) => pathname === r || pathname.startsWith(r)
+  );
+
+  const isWelcomePage =
+    pathname === '/' || pathname === '/welcome';
 
   return (
     <div
-      className={`min-h-screen bg-[#f7f5f0] text-slate-800 font-sans antialiased selection:bg-[#6c8570] selection:text-white ${
-        isWelcomePage ? 'p-0 m-0 w-screen h-screen overflow-hidden' : 'py-0 sm:py-6 lg:py-8 px-0 sm:px-6 lg:px-10 overflow-hidden'
-      }`}
+      className={`min-h-screen bg-[#f7f5f0] text-slate-800 font-sans antialiased selection:bg-[#6c8570] selection:text-white ${isWelcomePage
+          ? 'p-0 m-0 w-screen h-screen overflow-hidden'
+          : 'py-0 sm:py-6 lg:py-8 px-0 sm:px-6 lg:px-10 overflow-hidden'
+        }`}
     >
       <div
-        className={`flex flex-col relative ${
-          isWelcomePage
+        className={`flex flex-col relative ${isWelcomePage
             ? 'w-full h-full m-0 p-0 rounded-none border-0 shadow-none overflow-hidden'
-            : `min-h-[calc(100vh-3rem)] max-w-[1440px] mx-auto bg-[#FCFAF5] shadow-2xl shadow-slate-300/40 rounded-none sm:rounded-[24px] border-0 sm:border border-[#e6e2d8] ${
-                isFullViewport ? 'overflow-x-hidden overflow-y-visible' : 'overflow-hidden'
-              }`
-        }`}
+            : `min-h-[calc(100vh-3rem)] max-w-[1440px] mx-auto bg-[#FCFAF5] shadow-2xl shadow-slate-300/40 rounded-none sm:rounded-[24px] border-0 sm:border border-[#e6e2d8] ${isFullViewport
+              ? 'overflow-x-hidden overflow-y-visible'
+              : 'overflow-hidden'
+            }`
+          }`}
       >
         {/* Sticky Top Navigation */}
         {showHeader && (
@@ -71,15 +87,14 @@ export const AppShell: React.FC = () => {
 
         {/* Main Page Content */}
         <main
-          className={`flex-1 w-full mx-auto ${
-            isWelcomePage
+          className={`flex-1 w-full mx-auto ${isWelcomePage
               ? 'p-0 m-0 w-full h-full'
               : isFullViewport
-              ? 'px-0 py-0'
-              : pathname === '/login/citizen'
-              ? 'px-4 sm:px-8 lg:px-12 py-2 sm:py-3'
-              : 'px-4 sm:px-8 lg:px-12 py-6 sm:py-10'
-          }`}
+                ? 'px-0 py-0'
+                : pathname === '/login/citizen'
+                  ? 'px-4 sm:px-8 lg:px-12 py-2 sm:py-3'
+                  : 'px-4 sm:px-8 lg:px-12 py-6 sm:py-10'
+            }`}
         >
           <Suspense
             fallback={
@@ -91,6 +106,9 @@ export const AppShell: React.FC = () => {
             <Outlet />
           </Suspense>
         </main>
+
+        {/* AI Chatbot — Available on Every Page */}
+        <AIChatbot />
 
         {/* Global Alerts & Modals */}
         <ToastContainer />
