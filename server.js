@@ -344,7 +344,21 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const DEFAULT_PORT = parseInt(process.env.PORT || '3001', 10);
+
+const startServer = (port) => {
+  const server = app.listen(port, () => {
+    console.log(`✓ Express Backend Server is running at http://localhost:${port}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`⚠️ Port ${port} is currently in use. Trying port ${port + 1}...`);
+      startServer(port + 1);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+};
+
+startServer(DEFAULT_PORT);

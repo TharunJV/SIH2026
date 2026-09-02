@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
+    "start": "node server.js",
+    "server": "node server.js",
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
@@ -26,6 +28,7 @@
     "nodemailer": "^9.1.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
+    "react-router-dom": "^7.18.3",
     "svgmap-jharkhand": "^0.0.2",
     "vite": "^6.2.3"
   },

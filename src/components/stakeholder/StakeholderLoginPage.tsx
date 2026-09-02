@@ -25,16 +25,15 @@ const ROLE_DASHBOARD_MAP: Record<
   government: { userRole: "govt_department", dashboardView: "government-dashboard" },
 };
 
-export const StakeholderLoginPage: React.FC = () => {
+interface StakeholderLoginPageProps {
+  defaultRole?: RoleKey;
+}
+
+export const StakeholderLoginPage: React.FC<StakeholderLoginPageProps> = ({ defaultRole }) => {
   const { stakeholderLoginRole, switchRole, setCurrentView, showToast } = useApp();
 
-  // Fallback: if no role set, go back to role-selection
-  if (!stakeholderLoginRole) {
-    setCurrentView("role-selection");
-    return null;
-  }
-
-  const mapping = ROLE_DASHBOARD_MAP[stakeholderLoginRole];
+  const activeRole: RoleKey = stakeholderLoginRole || defaultRole || "university";
+  const mapping = ROLE_DASHBOARD_MAP[activeRole];
 
   const handleLogin = (data: { identity: string; password: string; role: RoleKey }) => {
     // Switch the app role and navigate to the dashboard
@@ -66,7 +65,7 @@ export const StakeholderLoginPage: React.FC = () => {
     onBack: handleBack,
   };
 
-  switch (stakeholderLoginRole) {
+  switch (activeRole) {
     case "university":
       return <UniversityLogin {...loginProps} />;
     case "faculty":

@@ -14,12 +14,15 @@
 
 .welcome-page {
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
-  min-height: 680px;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
   background: #11130f;
   color: var(--white);
+  border-radius: 0;
 }
 
 /* --------------------------------
@@ -29,6 +32,11 @@
 .welcome-background {
   position: absolute;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
 
   /*
    * Put your Assembly image inside:
@@ -161,7 +169,7 @@
   align-items: center;
   justify-content: center;
 
-  padding-top: 50px;
+  padding-top: 0;
 }
 
 /* --------------------------------

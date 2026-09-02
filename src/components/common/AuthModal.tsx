@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { UserRole } from '../../types';
 import { MOCK_USERS, JHARKHAND_DISTRICTS } from '../../mock/data';
 import {
@@ -15,7 +16,8 @@ import {
 } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, setIsAuthModalOpen, switchRole, currentUser, showToast } = useApp();
+  const { isAuthModalOpen, setIsAuthModalOpen, switchRole, currentUser } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'demo-login' | 'register'>('demo-login');
 
   // Register Form State
@@ -33,7 +35,11 @@ export const AuthModal: React.FC = () => {
       showToast('warning', 'Incomplete Form', 'Please enter your name and email.');
       return;
     }
-    showToast('success', 'Registration Submitted', `Application for ${regName} (${regRole.toUpperCase()}) submitted to JSHEC PMU for instant prototype access.`);
+    showToast(
+      'success',
+      'Registration Submitted',
+      `Application for ${regName} (${regRole.toUpperCase()}) submitted to JSHEC PMU for instant prototype access.`
+    );
     switchRole(regRole);
     setIsAuthModalOpen(false);
   };
@@ -98,7 +104,7 @@ export const AuthModal: React.FC = () => {
             }`}
           >
             <Sparkles className="w-4 h-4 text-amber-500" />
-            <span>Instant Role Login (For Judges & Demo)</span>
+            <span>Instant Role Login (For Judges &amp; Demo)</span>
           </button>
           <button
             onClick={() => setActiveTab('register')}
@@ -120,7 +126,9 @@ export const AuthModal: React.FC = () => {
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong>Fast Hackathon Evaluation:</strong> Click any of the 11 pre-configured stakeholder profiles below to immediately load their tailored dashboard view, permissions, and workflow capabilities.
+                  <strong>Fast Hackathon Evaluation:</strong> Click any of the 11 pre-configured
+                  stakeholder profiles below to immediately load their tailored dashboard view,
+                  permissions, and workflow capabilities.
                 </div>
               </div>
 
@@ -175,7 +183,9 @@ export const AuthModal: React.FC = () => {
           ) : (
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Select Stakeholder Role</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Select Stakeholder Role
+                </label>
                 <select
                   value={regRole}
                   onChange={(e) => setRegRole(e.target.value as UserRole)}
@@ -195,7 +205,9 @@ export const AuthModal: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Name / Representative Name</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Full Name / Representative Name
+                  </label>
                   <input
                     type="text"
                     required
@@ -206,7 +218,9 @@ export const AuthModal: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Organization / Institution Name</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Organization / Institution Name
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. BIT Mesra / Gram Panchayat Torpa"
@@ -230,7 +244,9 @@ export const AuthModal: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Primary Jharkhand District</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Primary Jharkhand District
+                  </label>
                   <select
                     value={regDistrict}
                     onChange={(e) => setRegDistrict(e.target.value)}
@@ -246,7 +262,8 @@ export const AuthModal: React.FC = () => {
               </div>
 
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-600">
-                Institutional registrations are automatically vetted against Higher & Technical Education databases in Jharkhand.
+                Institutional registrations are automatically vetted against Higher &amp; Technical
+                Education databases in Jharkhand.
               </div>
 
               <div className="pt-2 flex justify-end gap-2">
@@ -261,7 +278,7 @@ export const AuthModal: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm"
                 >
-                  Complete Registration & Login
+                  Complete Registration &amp; Login
                 </button>
               </div>
             </form>

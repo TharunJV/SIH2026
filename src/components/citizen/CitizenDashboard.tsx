@@ -313,42 +313,40 @@ export const CitizenDashboard: React.FC = () => {
           font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
           color: var(--ink);
           background: var(--cream);
-          /* escape App main padding */
-          margin: -1.5rem -1rem 0;
+          margin: 0;
           min-height: calc(100vh - 76px);
         }
-        @media (min-width: 640px)  { .cd2 { margin: -2.5rem -2rem 0; } }
-        @media (min-width: 1024px) { .cd2 { margin: -2.5rem 0 0; width: 100% } }
+        @media (min-width: 640px)  { .cd2 { margin: 0; } }
+        @media (min-width: 1024px) { .cd2 { margin: 0; width: 100% } }
 
         /* ═══════════════════════════════════════════
            CITIZEN SECONDARY NAVBAR
-           — sits in-flow directly below gov header
-           — NOT sticky (avoids overflow:hidden clip)
         ═══════════════════════════════════════════ */
         .cd2-nav {
-          height: 50px;
+          height: 70px;
           background: #fffdf8;
           border-bottom: 1.5px solid var(--line);
           display: flex;
-          align-items: stretch;
+          align-items: center;
+          justify-content: space-between;
           width: 100%;
           box-sizing: border-box;
           position: sticky;
-          top: 76px;                 /* below the sticky gov header */
+          top: 76px;
           z-index: 29;
+          padding: 0 48px;
         }
-        @media (max-width: 767px) { .cd2-nav { top: 60px; height: 46px; } }
+        @media (max-width: 767px) { .cd2-nav { height: 60px; padding: 0 24px; overflow-x: auto; } }
 
-        /* Left: nav links — fills remaining space, hides overflow of links only */
-      .cd2-nav__links {
-  display: flex;
-  align-items: stretch;
-  flex: 1 1 0;
-  min-width: 0;
-  padding-left: 8px;
-  overflow: visible;
-  gap: 0;
-}
+        /* Left: nav links */
+        .cd2-nav__links {
+          display: flex;
+          align-items: stretch;
+          height: 100%;
+          flex: 1 1 0;
+          min-width: 0;
+          gap: 30px;
+        }
         @media (max-width: 900px) { .cd2-nav__links { display: none; } }
 
         /* Individual nav link button */
@@ -356,13 +354,13 @@ export const CitizenDashboard: React.FC = () => {
           position: relative;
           display: inline-flex;
           align-items: center;
-          gap: 5px;
-          padding: 0 8px;
+          gap: 9px;
+          padding: 0;
           border: 0;
           background: none;
-          font-size: 12.5px;
-          font-weight: 500;
-          color: #3a3530;
+          font-size: 12px;
+          font-weight: 600;
+          color: #1f2923;
           cursor: pointer;
           white-space: nowrap;
           flex-shrink: 0;
@@ -371,61 +369,55 @@ export const CitizenDashboard: React.FC = () => {
           height: 100%;
           letter-spacing: 0;
         }
-        .cd2-nav__item:hover { color: var(--rust); }
-        .cd2-nav__item--active { color: var(--rust); font-weight: 700; }
+        .cd2-nav__item:hover { color: #e85f16; }
+        .cd2-nav__item--active { color: #ee5d15; }
         .cd2-nav__item--active::after {
           content: "";
           position: absolute;
-          bottom: 0; left: 6px; right: 6px;
-          height: 2px;
-          background: var(--rust);
-          border-radius: 2px 2px 0 0;
+          bottom: -1px; left: 0; right: 0;
+          height: 3px;
+          background: #f2631b;
+          border-radius: 0;
         }
         .cd2-nav__badge {
           display: grid; place-items: center;
-          min-width: 16px; height: 16px;
-          padding: 0 3px;
-          background: var(--orange); color: #fff;
-          border-radius: 8px; font-size: 9px; font-weight: 700;
+          min-width: 17px; height: 17px;
+          background: #ed5c15; color: #fff;
+          border-radius: 50%; font-size: 9px; font-weight: 700;
           font-style: normal; flex-shrink: 0;
         }
 
-        /* Right: exact fixed width so it is ALWAYS fully visible */
-       .cd2-nav__right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 10px 0 6px;
-
-  flex: 0 0 auto;
-  min-width: 0;
-  max-width: 360px;
-
-  box-sizing: border-box;
-}
+        /* Right: search, bell, profile */
+        .cd2-nav__right {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          flex: 0 0 auto;
+          box-sizing: border-box;
+        }
 
         /* Search box */
         .cd2-search {
           display: flex;
           align-items: center;
-          gap: 6px;
-          width: 139px;
-          height: 30px;
-          border: 1px solid var(--line);
-          border-radius: 6px;
+          justify-content: space-between;
+          width: 220px;
+          height: 40px;
+          border: 1px solid #e6ddd0;
+          border-radius: 9px;
           background: #fff;
-          padding: 0 8px;
+          padding: 0 13px;
           flex-shrink: 0;
         }
         .cd2-search input {
           border: 0; outline: 0; background: none;
-          flex: 1; min-width: 0; font-size: 11.5px; font-family: inherit; color: var(--ink);
+          flex: 1; min-width: 0; font-size: 12px; font-family: inherit; color: #8a8b87;
         }
         .cd2-search input::placeholder { color: #b8b0a8; }
         .cd2-search__btn {
           border: 0; background: none; cursor: pointer;
           display: flex; align-items: center;
-          color: #a8a098; padding: 0; flex-shrink: 0;
+          color: #5b655e; font-size: 20px; padding: 0; flex-shrink: 0;
         }
         @media (max-width: 660px) { .cd2-search { display: none; } }
 

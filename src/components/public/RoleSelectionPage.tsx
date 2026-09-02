@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { VIEW_TO_PATH } from '../../context/DemoContext';
 import { RoleCarousel, SIX_ROLES, RoleConfig } from '../common/RoleCarousel';
 import {
   ShieldCheck,
@@ -18,7 +21,9 @@ import {
 import { JHARKHAND_DISTRICTS } from '../../mock/data';
 
 export const RoleSelectionPage: React.FC = () => {
-  const { switchRole, setCurrentView, showToast, setIsAuthModalOpen } = useApp();
+  const navigate = useNavigate();
+  const { switchRole, setIsAuthModalOpen } = useAuth();
+  const { showToast } = useToast();
 
   const [activeRoleConfig, setActiveRoleConfig] = useState<RoleConfig>(SIX_ROLES[0]);
   const [authDialogMode, setAuthDialogMode] = useState<'login' | 'signup' | null>(null);
@@ -32,7 +37,7 @@ export const RoleSelectionPage: React.FC = () => {
   const handleRoleSelected = (roleConfig: RoleConfig) => {
     setActiveRoleConfig(roleConfig);
     if (roleConfig.id === 'citizen' || roleConfig.role === 'citizen' || roleConfig.name === 'CITIZEN / COMMUNITY') {
-      setCurrentView('citizen-login');
+      navigate('/login/citizen');
     } else {
       switchRole(roleConfig.role);
       showToast(
@@ -40,7 +45,8 @@ export const RoleSelectionPage: React.FC = () => {
         `Role Activated: ${roleConfig.name}`,
         `Logged in to ${roleConfig.name} dashboard environment.`
       );
-      setCurrentView(roleConfig.targetView as any);
+      const path = VIEW_TO_PATH[roleConfig.targetView as keyof typeof VIEW_TO_PATH] ?? '/home';
+      navigate(path);
     }
   };
 
@@ -53,7 +59,8 @@ export const RoleSelectionPage: React.FC = () => {
       `Welcome back! Accessing ${activeRoleConfig.name} portal.`
     );
     setAuthDialogMode(null);
-    setCurrentView(activeRoleConfig.targetView as any);
+    const path = VIEW_TO_PATH[activeRoleConfig.targetView as keyof typeof VIEW_TO_PATH] ?? '/home';
+    navigate(path);
   };
 
   const handleQuickSignUp = (e: React.FormEvent) => {
@@ -69,7 +76,8 @@ export const RoleSelectionPage: React.FC = () => {
       `New stakeholder profile registered for ${nameInput} (${activeRoleConfig.name}).`
     );
     setAuthDialogMode(null);
-    setCurrentView(activeRoleConfig.targetView as any);
+    const path = VIEW_TO_PATH[activeRoleConfig.targetView as keyof typeof VIEW_TO_PATH] ?? '/home';
+    navigate(path);
   };
 
   return (

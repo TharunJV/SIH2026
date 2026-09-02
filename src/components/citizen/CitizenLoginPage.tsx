@@ -3,9 +3,13 @@ import CitizenLogin from "./CitizenLogin";
 import CitizenRegister from "./CitizenRegister";
 import { useApp } from "../../context/AppContext";
 
-export const CitizenLoginPage: React.FC = () => {
+interface CitizenLoginPageProps {
+  initialRegisterMode?: boolean;
+}
+
+export const CitizenLoginPage: React.FC<CitizenLoginPageProps> = ({ initialRegisterMode = false }) => {
   const { switchRole, setCurrentView, showToast } = useApp();
-  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [isRegisterMode, setIsRegisterMode] = useState(initialRegisterMode);
 
   const handleLoginSuccess = () => {
     switchRole("citizen");

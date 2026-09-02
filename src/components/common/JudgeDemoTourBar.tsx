@@ -1,14 +1,12 @@
 import React from 'react';
-import { useApp, JUDGE_DEMO_STEPS } from '../../context/AppContext';
+import { useDemo, JUDGE_DEMO_STEPS } from '../../context/DemoContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
   HelpCircle,
   X,
-  Play,
-  RotateCcw,
 } from 'lucide-react';
 
 export const JudgeDemoTourBar: React.FC = () => {
@@ -19,8 +17,8 @@ export const JudgeDemoTourBar: React.FC = () => {
     goToDemoStep,
     nextDemoStep,
     prevDemoStep,
-    currentUser,
-  } = useApp();
+  } = useDemo();
+  const { currentUser } = useAuth();
 
   if (!isDemoTourActive) {
     return (
@@ -39,7 +37,8 @@ export const JudgeDemoTourBar: React.FC = () => {
     );
   }
 
-  const activeStepObj = JUDGE_DEMO_STEPS.find((s) => s.stepNumber === currentDemoStep) || JUDGE_DEMO_STEPS[0];
+  const activeStepObj =
+    JUDGE_DEMO_STEPS.find((s) => s.stepNumber === currentDemoStep) || JUDGE_DEMO_STEPS[0];
   const progressPercent = Math.round((currentDemoStep / JUDGE_DEMO_STEPS.length) * 100);
 
   return (
@@ -51,7 +50,9 @@ export const JudgeDemoTourBar: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[11px] font-bold shrink-0">
               <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>Judge Tour &bull; Step {currentDemoStep} of {JUDGE_DEMO_STEPS.length}</span>
+              <span>
+                Judge Tour &bull; Step {currentDemoStep} of {JUDGE_DEMO_STEPS.length}
+              </span>
             </span>
             <div className="flex items-center gap-1.5 font-bold text-xs sm:text-sm text-white tracking-tight">
               <span>{activeStepObj.title}</span>
@@ -101,7 +102,9 @@ export const JudgeDemoTourBar: React.FC = () => {
                 onClick={nextDemoStep}
                 className="px-3 h-8 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition-all"
               >
-                <span>{currentDemoStep === JUDGE_DEMO_STEPS.length ? 'Restart Tour' : 'Next Step'}</span>
+                <span>
+                  {currentDemoStep === JUDGE_DEMO_STEPS.length ? 'Restart Tour' : 'Next Step'}
+                </span>
                 <ChevronRight className="w-4 h-4 text-slate-950 font-black" />
               </button>
 
@@ -123,7 +126,10 @@ export const JudgeDemoTourBar: React.FC = () => {
               <HelpCircle className="w-3.5 h-3.5" /> What to evaluate here:
             </span>
             <span className="text-slate-200 text-[11px] sm:text-xs leading-snug">
-              {activeStepObj.description} &mdash; <strong className="text-amber-300 font-semibold">{activeStepObj.highlightAction}</strong>
+              {activeStepObj.description} &mdash;{' '}
+              <strong className="text-amber-300 font-semibold">
+                {activeStepObj.highlightAction}
+              </strong>
             </span>
           </div>
           <span className="hidden sm:block text-[10px] text-slate-400 shrink-0 mt-0.5">

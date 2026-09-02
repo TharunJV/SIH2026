@@ -1,11 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./WelcomePage.css";
 
-interface WelcomePageProps {
-  onEnter?: () => void;
-}
+export const WelcomePage: React.FC = () => {
+  const navigate = useNavigate();
 
-export const WelcomePage: React.FC<WelcomePageProps> = ({ onEnter }) => {
   return (
     <main className="welcome-page">
       {/* Background */}
@@ -14,19 +13,12 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({ onEnter }) => {
       {/* Cinematic overlay */}
       <div className="welcome-overlay" />
 
-      {/* Header */}
-      <header className="welcome-header">
-        <button className="menu-button" aria-label="Open menu">
-          <span />
-          <span />
-          <span />
-        </button>
-      </header>
+
 
       {/* Main Hero */}
       <section className="welcome-content">
         <h1 className="welcome-title">
-          <span className="title-white">Where Jharkhand’s</span>
+          <span className="title-white">Where Jharkhand's</span>
           <span className="title-gold">
             Challenges Meet Innovation
           </span>
@@ -38,7 +30,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({ onEnter }) => {
 
         <button
           className="enter-button"
-          onClick={onEnter}
+          onClick={() => navigate('/home')}
           type="button"
         >
           <svg
@@ -231,7 +223,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({ onEnter }) => {
         <div className="welcome-quote">
           <span className="quote-line" />
           <p>
-            “Every challenge is an opportunity to build a better tomorrow.”
+            "Every challenge is an opportunity to build a better tomorrow."
           </p>
           <span className="quote-line" />
         </div>
