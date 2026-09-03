@@ -32,6 +32,9 @@ export interface CreateChallengeInput {
     accuracy?: number;
     isGeotagged?: boolean;
     timestamp?: string;
+    source?: 'camera' | 'upload' | 'sample';
+    fileName?: string;
+    fileSize?: string;
   }[];
 }
 
@@ -83,8 +86,8 @@ class ChallengeService {
   }
 
   async createChallenge(input: CreateChallengeInput): Promise<Challenge> {
-    const randomSeq = Math.floor(1000 + Math.random() * 9000);
-    const newId = `JH-2026-00${randomSeq}`;
+    const randomSeq = Math.floor(100 + Math.random() * 900);
+    const newId = `JH-26043-000${randomSeq}`;
 
     // Perform AI analysis
     const aiAnalysis = await aiService.analyzeChallengeAsync({
@@ -129,12 +132,15 @@ class ChallengeService {
         geotagLocation: e.geotagLocation || `${input.village ? input.village + ', ' : ''}${input.block}, ${input.district}`,
         accuracy: e.accuracy || 3.5,
         isGeotagged: e.isGeotagged ?? true,
+        source: e.source || 'upload',
+        fileName: e.fileName,
+        fileSize: e.fileSize,
       })),
       timeline: [
         {
           stage: 'Challenge Submitted',
           date: new Date().toISOString().split('T')[0],
-          description: `Filed by ${input.submittedBy.userName} from ${input.district} District.`,
+          description: `Filed by ${input.submittedBy.userName} from ${input.district} District. Initial review pending.`,
           actor: 'Citizen / Submitter',
         },
         {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import { useApp } from '../../context/AppContext';
 import { UserRole } from '../../types';
-import { MOCK_USERS, JHARKHAND_DISTRICTS } from '../../mock/data';
+import { JHARKHAND_DISTRICTS } from '../../mock/data';
+import { authService } from '../../services/authService';
 import {
   X,
   UserCheck,
@@ -16,8 +16,7 @@ import {
 } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, setIsAuthModalOpen, switchRole, currentUser } = useAuth();
-  const { showToast } = useToast();
+  const { isAuthModalOpen, setIsAuthModalOpen, switchRole, currentUser, setCurrentUser, showToast } = useApp();
   const [activeTab, setActiveTab] = useState<'demo-login' | 'register'>('demo-login');
 
   // Register Form State
@@ -29,18 +28,42 @@ export const AuthModal: React.FC = () => {
 
   if (!isAuthModalOpen) return null;
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const allUsers = authService.getAllUsers();
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regName || !regEmail) {
       showToast('warning', 'Incomplete Form', 'Please enter your name and email.');
       return;
     }
-    showToast(
-      'success',
-      'Registration Submitted',
-      `Application for ${regName} (${regRole.toUpperCase()}) submitted to JSHEC PMU for instant prototype access.`
-    );
-    switchRole(regRole);
+
+    if (regRole === 'citizen') {
+      const res = await authService.registerCitizen({
+        fullName: regName,
+        email: regEmail,
+        phone: '9835000000',
+        district: regDistrict,
+      });
+      if (res.user) {
+        setCurrentUser(res.user as any);
+        switchRole(res.user.role);
+      }
+    } else {
+      switchRole(regRole);
+    }
+
+    showToast('success', 'Registration Submitted', `Stakeholder session activated for ${regName} (${regRole.replace('_', ' ').toUpperCase()}).`);
+    setIsAuthModalOpen(false);
+  };
+
+  const handleSelectDemoUser = (role: UserRole) => {
+    const matched = allUsers.find((u) => u.role === role) || allUsers[0];
+    const switched = authService.switchUser(matched.id);
+    if (switched) {
+      setCurrentUser(switched as any);
+    }
+    switchRole(role);
+    showToast('success', `Logged In as ${matched.name}`, `Active session established for ${matched.role.replace('_', ' ').toUpperCase()}`);
     setIsAuthModalOpen(false);
   };
 
@@ -73,7 +96,7 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 to-emerald-950 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -97,18 +120,18 @@ export const AuthModal: React.FC = () => {
         <div className="flex border-b border-slate-200 bg-slate-50 px-4 sm:px-6 pt-3">
           <button
             onClick={() => setActiveTab('demo-login')}
-            className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 cursor-pointer ${
               activeTab === 'demo-login'
                 ? 'border-emerald-700 text-emerald-900'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
             <Sparkles className="w-4 h-4 text-amber-500" />
-            <span>Instant Role Login (For Judges &amp; Demo)</span>
+            <span>Instant Role Login (For Judges & Demo)</span>
           </button>
           <button
             onClick={() => setActiveTab('register')}
-            className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 cursor-pointer ${
               activeTab === 'register'
                 ? 'border-emerald-700 text-emerald-900'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -126,9 +149,7 @@ export const AuthModal: React.FC = () => {
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong>Fast Hackathon Evaluation:</strong> Click any of the 11 pre-configured
-                  stakeholder profiles below to immediately load their tailored dashboard view,
-                  permissions, and workflow capabilities.
+                  <strong>Fast Hackathon Evaluation:</strong> Click any of the 11 pre-configured stakeholder profiles below to immediately load their tailored dashboard view, permissions, and workflow capabilities.
                 </div>
               </div>
 
@@ -142,17 +163,18 @@ export const AuthModal: React.FC = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {cat.roles.map((r) => {
-                        const matchedUser = MOCK_USERS.find((u) => u.role === r);
+                        const matchedUser = allUsers.find((u) => u.role === r) || {
+                          name: 'Representative',
+                          organization: 'Jharkhand Ecosystem',
+                          district: 'Ranchi',
+                        };
                         const isCurrent = currentUser.role === r;
 
                         return (
                           <button
                             key={r}
-                            onClick={() => {
-                              switchRole(r);
-                              setIsAuthModalOpen(false);
-                            }}
-                            className={`p-2.5 rounded-xl border text-left transition-all relative ${
+                            onClick={() => handleSelectDemoUser(r)}
+                            className={`p-2.5 rounded-xl border text-left transition-all relative cursor-pointer ${
                               isCurrent
                                 ? 'border-emerald-600 bg-emerald-50 ring-2 ring-emerald-500/20'
                                 : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
@@ -183,13 +205,11 @@ export const AuthModal: React.FC = () => {
           ) : (
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Select Stakeholder Role
-                </label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Select Stakeholder Role</label>
                 <select
                   value={regRole}
                   onChange={(e) => setRegRole(e.target.value as UserRole)}
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500"
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="citizen">Citizen / Resident</option>
                   <option value="pri_ulb">Panchayati Raj Institution (PRI) / Urban Local Body</option>
@@ -205,28 +225,24 @@ export const AuthModal: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Full Name / Representative Name
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Name / Representative Name</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Dr. Anil Kumar / Anita Soren"
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Organization / Institution Name
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Organization / Institution Name</label>
                   <input
                     type="text"
                     placeholder="e.g. BIT Mesra / Gram Panchayat Torpa"
                     value={regOrg}
                     onChange={(e) => setRegOrg(e.target.value)}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -240,17 +256,15 @@ export const AuthModal: React.FC = () => {
                     placeholder="name@organization.ac.in"
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Primary Jharkhand District
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Primary Jharkhand District</label>
                   <select
                     value={regDistrict}
                     onChange={(e) => setRegDistrict(e.target.value)}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-xs p-2.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500"
                   >
                     {JHARKHAND_DISTRICTS.map((d) => (
                       <option key={d} value={d}>
@@ -261,24 +275,23 @@ export const AuthModal: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-600">
-                Institutional registrations are automatically vetted against Higher &amp; Technical
-                Education databases in Jharkhand.
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600">
+                Institutional registrations are automatically vetted against Higher & Technical Education databases in Jharkhand.
               </div>
 
               <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAuthModalOpen(false)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                  className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-sm"
+                  className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                 >
-                  Complete Registration &amp; Login
+                  Complete Registration & Login
                 </button>
               </div>
             </form>

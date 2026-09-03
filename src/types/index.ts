@@ -97,6 +97,10 @@ export interface MultimediaEvidence {
   geotagLocation?: string;
   accuracy?: number;
   isGeotagged?: boolean;
+  metadataAvailable?: boolean;
+  source?: 'camera' | 'upload' | 'sample';
+  fileName?: string;
+  fileSize?: string;
 }
 
 export interface AIAnalysis {
@@ -164,6 +168,59 @@ export interface Challenge {
     description: string;
     actor: string;
   }[];
+  trustStatus?: 'Community Report' | 'Evidence Submitted' | 'Under Review' | 'Verified';
+  latestUpdate?: string;
+  isReopened?: boolean;
+  reopenedReason?: string;
+  previousAttempts?: {
+    attemptNumber: number;
+    universityName: string;
+    facultyLead?: string;
+    studentCohort?: string;
+    attemptPeriod?: string;
+    outcome: 'Unsuccessful' | 'Partially Resolved' | 'Successful' | 'In Progress';
+    completedDate: string;
+    publicSummary: string;
+    bottleneckAnalysis?: string;
+    labDataPreserved?: string;
+    keyLessonsForNextUniversity: string;
+    publicReportUrl?: string;
+    trlAchieved?: number;
+  }[];
+  currentAttemptNumber?: number;
+  publicOutcome?: {
+    title: string;
+    summary: string;
+    beneficiariesCount: number;
+    districtsCount: number;
+    deploymentStatus: string;
+    universityName: string;
+    industryPartner?: string;
+    completedDate: string;
+  };
+}
+
+export interface UniversityApplication {
+  id: string;
+  challengeId: string;
+  challengeTitle: string;
+  district: string;
+  category: ChallengeCategory;
+  universityId: string;
+  universityName: string;
+  facultyMentor: string;
+  department: string;
+  studentCohortSize: number;
+  initialApproach: string;
+  targetTRL: number;
+  estimatedTimelineMonths: number;
+  resourcesRequested: string;
+  status: 'Under Review' | 'Officially Assigned' | 'Shortlisted' | 'Archived';
+  submittedDate: string;
+  reviewedDate?: string;
+  reviewerNotes?: string;
+  attemptNumber?: number;
+  officialAssignmentLetterUrl?: string;
 }
 
 export interface TeamMember {
@@ -442,3 +499,5 @@ export interface DistrictMetric {
     lng: number;
   };
 }
+
+export * from './auth';

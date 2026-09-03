@@ -1,11 +1,17 @@
 @import "tailwindcss";
 
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
+@layer utilities {
+  .font-serif-display {
+    font-family: 'Playfair Display', 'Cinzel', 'Lora', Georgia, serif;
+  }
+  .font-serif-quote {
+    font-family: 'Lora', 'Playfair Display', Georgia, serif;
+  }
+  .font-heading-royal {
+    font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+  }
+  .font-sans-body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
 }
+

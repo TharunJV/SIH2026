@@ -1,460 +1,444 @@
-import React from 'react';
-import JharkhandHeroMap from './JharkhandHeroMap';
+import React, { useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { RoleCarousel } from '../common/RoleCarousel';
+import { JharkhandEmblem } from '../common/JharkhandEmblem';
+import assemblyHeroImg from '../../assets/images/jharkhand_assembly_1788342750288.jpg';
 import {
-  Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  Building2,
-  GraduationCap,
-  Briefcase,
+  Lightbulb,
   Users,
-  Compass,
-  CheckCircle2,
   TrendingUp,
+  ArrowRight,
+  ChevronDown,
+  Sparkles,
   MapPin,
-  HeartHandshake,
+  ShieldCheck,
+  GraduationCap,
+  Building2,
+  CheckCircle2,
+  Compass,
   Layers,
-  Award,
+  FileCheck2,
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
   const {
     setCurrentView,
     switchRole,
-    setIsAuthModalOpen,
     setIsDemoTourActive,
     goToDemoStep,
     challenges,
     navigateToChallenge,
+    showToast,
   } = useApp();
 
+  const detailsSectionRef = useRef<HTMLDivElement>(null);
+
+  const handleScrollToDetails = () => {
+    detailsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleEnterPortal = () => {
+    setCurrentView('role-selection');
+  };
+
   return (
-    <div className="space-y-12 pb-8">
-      {/* 1. Premium Hero Section */}
-      <section id="hero" className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#fef8f3] via-[#fdf5eb] to-[#f4f2f7] text-slate-800 p-8 sm:p-14 border border-[#eee9e0] shadow-sm">
-        {/* Soft Lavender / Peach Gradients */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#eadeeb]/30 rounded-full blur-3xl pointer-events-none -translate-y-32 translate-x-32"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#fcece3]/50 rounded-full blur-3xl pointer-events-none translate-y-32 -translate-x-32"></div>
-
-        <div className="relative z-10 flex flex-col lg:flex-row items-center gap-10">
-          <div className="w-full lg:w-[55%] space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 text-[#605a68] text-xs font-bold border border-[#e6e2d8] shadow-xs backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-[#8c78a0]"></span>
-              <span>Government of Jharkhand &bull; Smart India Hackathon 2026</span>
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-800 leading-[1.15]">
-              Crowdsourcing Grassroots Challenges <br className="hidden sm:block" />
-              <span className="block mt-2 font-semibold text-slate-700 text-3xl sm:text-4xl lg:text-5xl">
-                Solving via <span className="text-[#6c8570]">Universities</span> <span className="text-[#8c78a0]">& Industry</span>
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl font-medium">
-              A state-wide digital bridge connecting citizens facing water, agro, healthcare, and infrastructure obstacles with Jharkhand's premier Higher Education Institutions (BIT Mesra, IIT ISM, NIT) and CSR Industry Partners.
-            </p>
-
-            {/* Core Citizen UX Philosophy Banner */}
-            <div className="p-4 bg-white/60 border border-[#e6e2d8] rounded-2xl text-xs text-slate-700 flex items-start gap-3 shadow-sm backdrop-blur-sm max-w-2xl">
-              <Sparkles className="w-5 h-5 text-[#d89753] shrink-0 mt-0.5" />
-              <div>
-                <strong className="text-[#72614b] block text-xs uppercase tracking-wide">Core Citizen Principle:</strong>
-                <p className="mt-0.5 leading-relaxed text-slate-600 font-medium">
-                  &ldquo;You do not need to know how to solve the problem or use technical terms. You just need to help us understand what is happening in your village or town.&rdquo;
-                </p>
-              </div>
-            </div>
-
-            {/* Hero CTAs */}
-            <div className="flex flex-wrap items-center gap-3 pt-4">
-              <button
-                onClick={() => setCurrentView('submit-challenge')}
-                className="px-6 h-[52px] bg-[#3a5a40] hover:bg-[#2c4431] text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-              >
-                <Users className="w-4 h-4 shrink-0" />
-                <span>Submit a Community Challenge</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setIsDemoTourActive(true);
-                  goToDemoStep(1);
-                }}
-                className="px-6 h-[52px] bg-white border border-[#e6e2d8] hover:bg-[#fbf9f6] text-slate-800 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2"
-              >
-                <Sparkles className="w-4 h-4 text-[#d89753] shrink-0" />
-                <span>Launch 3-Min Fast-Track Judge Tour</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Right Column: Jharkhand Map Visual */}
-          <div className="w-full lg:w-[45%] relative flex flex-col items-center justify-center py-4">
-
-            {/* Soft background glow */}
-            <div className="absolute inset-0 bg-[#eadeeb]/20 rounded-3xl blur-3xl pointer-events-none"></div>
-
-            {/* ── Stakeholder grid centred on the map ── */}
-            <div className="relative w-full flex flex-col items-center gap-2 z-10">
-
-              {/* Top row: Industry Partners */}
-              <div className="flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                  <div className="w-11 h-11 bg-[#fdf5eb] rounded-full shadow-md flex items-center justify-center border border-[#f5e3d0]">
-                    <HeartHandshake className="w-5 h-5 text-[#c9833b]" />
-                  </div>
-                  <div className="text-center mt-1 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded shadow-sm border border-[#eee9e0]">
-                    <div className="text-[10px] font-bold text-slate-800">Industry Partners</div>
-                    <div className="text-[8px] text-slate-500">Mentor · Fund · Co-develop</div>
-                  </div>
-                  {/* Dotted line down to map */}
-                  <svg width="2" height="18" className="mt-1"><line x1="1" y1="0" x2="1" y2="18" stroke="#d89753" strokeWidth="1.5" strokeDasharray="3 3"/></svg>
-                </div>
-              </div>
-
-              {/* Middle row: Universities | MAP | Government */}
-              <div className="flex items-center justify-center gap-3 w-full">
-                {/* Universities */}
-                <div className="flex flex-col items-center shrink-0">
-                  <div className="w-11 h-11 bg-white rounded-full shadow-md flex items-center justify-center border border-[#eadeeb]">
-                    <GraduationCap className="w-5 h-5 text-[#8c78a0]" />
-                  </div>
-                  <div className="text-center mt-1 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded shadow-sm border border-[#eee9e0]">
-                    <div className="text-[10px] font-bold text-slate-800">Universities</div>
-                    <div className="text-[8px] text-slate-500">Research · Innovate</div>
-                  </div>
-                </div>
-
-                {/* Dotted line left → map */}
-                <svg width="18" height="2" className="shrink-0"><line x1="0" y1="1" x2="18" y2="1" stroke="#8c78a0" strokeWidth="1.5" strokeDasharray="3 3"/></svg>
-
-                {/* The Real Jharkhand Map */}
-                <div className="flex-1 min-w-0" style={{ maxWidth: '420px' }}>
-                  <JharkhandHeroMap />
-                </div>
-
-                {/* Dotted line map → right */}
-                <svg width="18" height="2" className="shrink-0"><line x1="0" y1="1" x2="18" y2="1" stroke="#6c8570" strokeWidth="1.5" strokeDasharray="3 3"/></svg>
-
-                {/* Government */}
-                <div className="flex flex-col items-center shrink-0">
-                  <div className="w-11 h-11 bg-white rounded-full shadow-md flex items-center justify-center border border-[#eee9e0]">
-                    <Building2 className="w-5 h-5 text-[#6c8570]" />
-                  </div>
-                  <div className="text-center mt-1 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded shadow-sm border border-[#eee9e0]">
-                    <div className="text-[10px] font-bold text-slate-800">Government</div>
-                    <div className="text-[8px] text-slate-500">Enable · Monitor</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom row: Citizens */}
-              <div className="flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                  {/* Dotted line up from map */}
-                  <svg width="2" height="18" className="mb-1"><line x1="1" y1="0" x2="1" y2="18" stroke="#6c8570" strokeWidth="1.5" strokeDasharray="3 3"/></svg>
-                  <div className="w-11 h-11 bg-[#f4f2f7] rounded-full shadow-md flex items-center justify-center border border-[#eadeeb]">
-                    <Users className="w-5 h-5 text-[#8c78a0]" />
-                  </div>
-                  <div className="text-center mt-1 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded shadow-sm border border-[#eee9e0]">
-                    <div className="text-[10px] font-bold text-slate-800">Citizens &amp; Communities</div>
-                    <div className="text-[8px] text-slate-500">Identify · Submit · Collaborate</div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
+    <div className="w-full min-h-screen bg-slate-950 text-white font-sans-body selection:bg-amber-500 selection:text-slate-950">
+      {/* ========================================================================= */}
+      {/* 1. HERO SOVEREIGN BANNER (MATCHING SCREENSHOT 1 EXACTLY - FULL SCREEN EDGE TO EDGE) */}
+      {/* ========================================================================= */}
+      <section className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-slate-950 text-white">
+        {/* Background Vidhan Sabha Image with warm sunset & dusk gradient vignette */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={assemblyHeroImg}
+            alt="Jharkhand State Legislative Assembly Vidhan Sabha"
+            className="w-full h-full object-cover object-center transform scale-100"
+            referrerPolicy="no-referrer"
+          />
+          {/* Rich cinematic warm dusk overlay & vignettes matching screenshot 1 */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/45 to-black/95 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-radial from-transparent via-amber-950/20 to-black/90 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-amber-900/15 mix-blend-color-burn pointer-events-none"></div>
         </div>
 
-        {/* Statistics Banner */}
-        <div className="mt-10 pt-8 border-t border-[#e6e2d8]/60 relative z-10">
-          <div className="bg-[#fffdfa] rounded-2xl border border-[#eee9e0] shadow-sm p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 divide-x divide-[#eee9e0]/60">
-            {/* Stat 1 */}
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-10 h-10 rounded-full bg-[#f5f2f7] flex items-center justify-center shrink-0 border border-[#eadeeb]">
-                <Layers className="w-5 h-5 text-[#8c78a0]" />
-              </div>
-              <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
-                <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Challenges<br/>Submitted</span>
-              </div>
-            </div>
-            
-            {/* Stat 2 */}
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-10 h-10 rounded-full bg-[#f0f4f1] flex items-center justify-center shrink-0 border border-[#dce5de]">
-                <ShieldCheck className="w-5 h-5 text-[#6c8570]" />
-              </div>
-              <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
-                <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Challenges<br/>Validated</span>
-              </div>
-            </div>
-
-            {/* Stat 3 */}
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-10 h-10 rounded-full bg-[#fdf5eb] flex items-center justify-center shrink-0 border border-[#f5e3d0]">
-                <Building2 className="w-5 h-5 text-[#c9833b]" />
-              </div>
-              <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
-                <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Universities<br/>Onboarded</span>
-              </div>
-            </div>
-
-            {/* Stat 4 */}
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-10 h-10 rounded-full bg-[#f5f2f7] flex items-center justify-center shrink-0 border border-[#eadeeb]">
-                <Users className="w-5 h-5 text-[#8c78a0]" />
-              </div>
-              <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
-                <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Industry<br/>Partners</span>
-              </div>
-            </div>
-
-            {/* Stat 5 */}
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-10 h-10 rounded-full bg-[#fdf5eb] flex items-center justify-center shrink-0 border border-[#f5e3d0]">
-                <TrendingUp className="w-5 h-5 text-[#c9833b]" />
-              </div>
-              <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
-                <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Solutions<br/>In Progress</span>
-              </div>
-            </div>
-
-            {/* Stat 6 */}
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-10 h-10 rounded-full bg-[#f0eae1] flex items-center justify-center shrink-0 border border-[#d8c8b4]">
-                <Award className="w-5 h-5 text-[#d89753]" />
-              </div>
-              <div>
-                <span className="text-xl font-black text-slate-800 block leading-none">0</span>
-                <span className="text-[10px] sm:text-xs text-slate-500 font-medium leading-tight">Solutions<br/>Deployed</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. Role-Based Portals — DIRECTLY AFTER HERO */}
-      <section id="select-role" className="space-y-4 pt-4 scroll-mt-24">
-        <div className="text-center max-w-2xl mx-auto space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[#6c8570]">
-            Interactive Multi-Stakeholder Ecosystem
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-            Select your role to continue
-          </h2>
-          <p className="text-xs text-slate-500 font-medium">
-            Choose the role that best describes you
-          </p>
-        </div>
-
-        <RoleCarousel />
-      </section>
-
-      {/* 3. ONE CHALLENGE • CONNECTED ECOSYSTEM EXPLAINER */}
-      <section id="how-it-works" className="bg-[#fffdfa] rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6 scroll-mt-24">
-        <div className="text-center max-w-2xl mx-auto space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[#6c8570]">
-            One Platform &bull; One Challenge &bull; Multiple Participants
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-            How a Single Challenge Moves Through the Ecosystem
-          </h2>
-          <p className="text-xs text-slate-500 leading-relaxed font-medium">
-            Different stakeholders collaborate with distinct responsibilities around every verified challenge.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl bg-white border border-[#eee9e0] shadow-xs space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-[#f0eae1] text-[#8c78a0] font-bold flex items-center justify-center text-xs">
-              1
-            </div>
-            <h3 className="text-xs font-bold text-slate-800">1. Citizen & Community</h3>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-              Submits plain-language problem report and photos. Tracks journey from review to village testing.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-[#eee9e0] shadow-xs space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-[#f0eae1] text-[#6c8570] font-bold flex items-center justify-center text-xs">
-              2
-            </div>
-            <h3 className="text-xs font-bold text-slate-800">2. State PMU & Nodal Officers</h3>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-              Screens credibility, tags status (🟡 Community Report &rarr; 🟢 Verified), and determines resolution path.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-[#eee9e0] shadow-xs space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-[#f0eae1] text-[#d89753] font-bold flex items-center justify-center text-xs">
-              3
-            </div>
-            <h3 className="text-xs font-bold text-slate-800">3. Higher Education (HEIs)</h3>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-              BIT Mesra, IIT ISM, and NIT faculty form student cohorts to design prototypes (TRL 1-5).
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-[#eee9e0] shadow-xs space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-[#f0eae1] text-[#72614b] font-bold flex items-center justify-center text-xs">
-              4
-            </div>
-            <h3 className="text-xs font-bold text-slate-800">4. Industry & CSR Partners</h3>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-              Tata Steel, CCL, and MSMEs commit CSR funding, testing facilities, and scaled deployment.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. INTELLIGENT SOLUTION PATHWAYS SECTION */}
-      <section id="pathways" className="bg-white rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6 relative overflow-hidden scroll-mt-24">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#fcece3]/40 rounded-full blur-3xl pointer-events-none -translate-y-20 translate-x-10"></div>
-        <div className="relative z-10 max-w-2xl space-y-1">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[#d89753]">
-            Intelligent Triage & Routing
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-            Two Distinct Pathways for Every Problem
-          </h2>
-          <p className="text-xs text-slate-500 font-medium">
-            The platform distinguishes between operational maintenance and technological research challenges.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-          <div className="p-6 rounded-2xl bg-[#fffdfa] border border-[#eee9e0] shadow-xs space-y-3 transition-colors hover:border-[#d89753]/40">
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#fdf5eb] text-[#c9833b] border border-[#f5e3d0] uppercase">
-              Path A: Public Service Action
-            </span>
-            <h3 className="text-sm font-bold text-slate-800">Direct Government & Municipal Resolution</h3>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">
-              For operational and routine maintenance issues (e.g. damaged electric transformers, silted irrigation canals, broken handpump levers). Routed directly to District Line Departments for fast administrative action.
-            </p>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-[#eee9e0]">
-              <strong className="text-slate-700">Workflow:</strong> Citizen &rarr; Nodal Verification &rarr; Line Department Work Order &rarr; Resolved
-            </div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-[#fffdfa] border border-[#eee9e0] shadow-xs space-y-3 transition-colors hover:border-[#8c78a0]/40">
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#f5f2f7] text-[#8c78a0] border border-[#eadeeb] uppercase">
-              Path B: Innovation & R&D Challenge
-            </span>
-            <h3 className="text-sm font-bold text-slate-800">University + Industry Co-Creation</h3>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">
-              For complex technological, agricultural, or environmental challenges (e.g. fluoride/arsenic groundwater filtration, lac bio-resin processing, low-cost solar cold storage). Assigned to university student-faculty lab teams with CSR funding.
-            </p>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-[#eee9e0]">
-              <strong className="text-slate-700">Workflow:</strong> Citizen &rarr; AI Match &rarr; HEI R&D Cohort &rarr; CSR Sponsor &rarr; Village Pilot &rarr; Scale
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. DISCOVERY & OUTREACH ECOSYSTEM */}
-      <section id="discovery" className="bg-[#fffdfa] rounded-3xl p-6 sm:p-8 border border-[#eee9e0] shadow-sm space-y-4 scroll-mt-24">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#eee9e0] pb-3">
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-              Grassroots Discovery & Community Outreach Channels
-            </h3>
-            <p className="text-xs text-slate-500 font-medium">
-              Ensuring the platform reaches remote hamlets and non-technical citizens across Jharkhand.
-            </p>
-          </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#f0f4f1] text-[#4f6853] border border-[#dce5de] shrink-0">
-            24 Districts Integrated
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div className="p-3 bg-white rounded-xl border border-[#eee9e0] shadow-xs space-y-1">
-            <strong className="text-slate-800 block">Panchayats & Mukhiyas</strong>
-            <p className="text-[11px] text-slate-500 font-medium">Gram Sabha problem logging and formal site endorsements.</p>
-          </div>
-          <div className="p-3 bg-white rounded-xl border border-[#eee9e0] shadow-xs space-y-1">
-            <strong className="text-slate-800 block">Urban Local Bodies (ULBs)</strong>
-            <p className="text-[11px] text-slate-500 font-medium">Municipal ward sanitation, mobility, and water telemetry.</p>
-          </div>
-          <div className="p-3 bg-white rounded-xl border border-[#eee9e0] shadow-xs space-y-1">
-            <strong className="text-slate-800 block">University Field Cells</strong>
-            <p className="text-[11px] text-slate-500 font-medium">Student NSS & Unnat Bharat Abhiyan village immersion surveys.</p>
-          </div>
-          <div className="p-3 bg-white rounded-xl border border-[#eee9e0] shadow-xs space-y-1">
-            <strong className="text-slate-800 block">Panchayat QR Kiosks</strong>
-            <p className="text-[11px] text-slate-500 font-medium">Scan & speak voice/photo reporting at Common Service Centers.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Featured Community Challenges */}
-      <section id="active-challenges" className="bg-white rounded-3xl p-6 sm:p-10 border border-[#eee9e0] shadow-sm space-y-6 scroll-mt-24">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#eee9e0] pb-4">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-widest text-[#6c8570]">
-              Grassroots Ingestion
-            </span>
-            <h3 className="text-xl font-bold text-slate-800 tracking-tight mt-0.5">
-              Active Societal Challenges Seeking HEI Solutions
-            </h3>
-          </div>
-          <button
-            onClick={() => setCurrentView('explore-challenges')}
-            className="px-4 py-2 border border-[#eee9e0] hover:bg-[#fffdfa] rounded-xl text-xs font-bold text-slate-700 flex items-center gap-1 shrink-0 transition-colors shadow-xs"
+        {/* Embedded Top Navigation Bar matching Screenshot 1 */}
+        <div className="relative z-20 w-full px-6 sm:px-12 lg:px-16 py-6 flex items-center justify-between border-b border-white/10 backdrop-blur-xs">
+          {/* Left Brand */}
+          <div
+            onClick={() => setCurrentView('landing')}
+            className="flex items-center gap-3.5 cursor-pointer group select-none"
           >
-            <span>Explore All 24 Districts</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <JharkhandEmblem size={48} className="ring-2 ring-amber-400/60 shadow-xl" />
+            <div>
+              <span className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors block leading-tight font-sans-body">
+                JH Innovation Connect
+              </span>
+              <span className="text-[10px] sm:text-xs text-amber-200/80 font-medium tracking-wide">
+                Govt. of Jharkhand &bull; Higher & Technical Education
+              </span>
+            </div>
+          </div>
+
+          {/* Right Links & Login / Register Button */}
+          <div className="flex items-center gap-4 sm:gap-8">
+            <nav className="hidden md:flex items-center gap-7 text-xs sm:text-sm font-medium text-slate-200">
+              <button
+                onClick={() => setCurrentView('how-it-works')}
+                className="hover:text-amber-300 transition-colors cursor-pointer"
+              >
+                About Us
+              </button>
+              <button
+                onClick={() => setCurrentView('how-it-works')}
+                className="hover:text-amber-300 transition-colors cursor-pointer"
+              >
+                How It Works
+              </button>
+              <button
+                onClick={() => setCurrentView('impact')}
+                className="hover:text-amber-300 transition-colors cursor-pointer"
+              >
+                Impact
+              </button>
+              <button
+                onClick={() => setCurrentView('universities')}
+                className="hover:text-amber-300 transition-colors cursor-pointer"
+              >
+                Resources
+              </button>
+              <button
+                onClick={() => setCurrentView('industry')}
+                className="hover:text-amber-300 transition-colors cursor-pointer"
+              >
+                Contact
+              </button>
+            </nav>
+
+            <button
+              type="button"
+              onClick={handleEnterPortal}
+              className="px-6 py-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm rounded-xl shadow-xl hover:shadow-amber-500/40 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center gap-1.5"
+            >
+              <span>Login / Register</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Hero Center Body (Exact Copy & Centered Typography) */}
+        <div className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 py-12 text-center flex flex-col items-center justify-center my-auto space-y-6">
+          {/* Title in Classical Serif */}
+          <div className="space-y-1">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif-display font-normal tracking-tight text-white leading-tight drop-shadow-lg">
+              Where Jharkhand&apos;s
+            </h1>
+            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif-display font-medium tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400 drop-shadow-xl leading-tight">
+              Challenges Meet Innovation
+            </h2>
+          </div>
+
+          {/* Subtitle */}
+          <p className="text-sm sm:text-lg md:text-xl text-slate-200 font-normal max-w-2xl mx-auto leading-relaxed drop-shadow">
+            A collaborative platform for solving societal challenges through knowledge, technology and partnership.
+          </p>
+
+          {/* Primary Call to Action Button */}
+          <div className="pt-3">
+            <button
+              type="button"
+              onClick={handleEnterPortal}
+              className="px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-sm sm:text-base rounded-xl shadow-2xl hover:shadow-amber-500/50 transition-all transform hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-2.5 group"
+            >
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <span>Enter Portal</span>
+            </button>
+          </div>
+
+          {/* Learn More Scroll Indicator */}
+          <button
+            type="button"
+            onClick={handleScrollToDetails}
+            className="text-xs sm:text-sm text-amber-200/90 hover:text-white font-medium flex items-center gap-1.5 pt-4 transition-colors cursor-pointer"
+          >
+            <span>Learn More</span>
+            <ChevronDown className="w-4 h-4 animate-bounce" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {challenges.slice(0, 3).map((ch) => (
-            <div
-              key={ch.id}
-              onClick={() => navigateToChallenge(ch.id)}
-              className="p-5 rounded-2xl border border-[#eee9e0] hover:border-[#6c8570]/50 bg-white hover:bg-[#fffdfa] cursor-pointer transition-all flex flex-col justify-between space-y-4 shadow-xs hover:shadow-sm"
-            >
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold text-slate-500 bg-[#f7f5f0] px-2 py-0.5 rounded border border-[#eee9e0]">
-                    {ch.id}
-                  </span>
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
-                      ch.urgency === 'Critical'
-                        ? 'bg-[#fcece3] text-[#c96245]'
-                        : ch.urgency === 'High'
-                        ? 'bg-[#fdf5eb] text-[#c9833b]'
-                        : 'bg-[#f0f4f1] text-[#4f6853]'
-                    }`}
-                  >
-                    {ch.urgency}
-                  </span>
-                </div>
-
-                <h4 className="text-xs font-bold text-slate-800 leading-snug line-clamp-2">{ch.title}</h4>
-                <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium">{ch.description}</p>
+        {/* Bottom 3 Pillars & Quote Banner (Matching Screenshot 1) */}
+        <div className="relative z-10 w-full bg-slate-950/85 backdrop-blur-md border-t border-white/10 px-6 sm:px-12 lg:px-16 py-6 space-y-5">
+          {/* 3 Value Pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-6xl mx-auto divide-y md:divide-y-0 md:divide-x divide-white/10">
+            {/* Pillar 1 */}
+            <div className="flex items-center gap-4 pt-3 md:pt-0 md:px-6">
+              <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 text-amber-400">
+                <Lightbulb className="w-6 h-6" />
               </div>
-
-              <div className="pt-3 border-t border-[#eee9e0] flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                  {ch.district}
-                </span>
-                <span className="font-bold text-[#6c8570]">{ch.status}</span>
+              <div>
+                <h3 className="text-sm sm:text-base font-serif-quote italic font-semibold text-amber-300">
+                  Together We Innovate
+                </h3>
+                <p className="text-xs text-slate-300">Ideas for Impact</p>
               </div>
             </div>
-          ))}
+
+            {/* Pillar 2 */}
+            <div className="flex items-center gap-4 pt-3 md:pt-0 md:px-6">
+              <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 text-emerald-400">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-serif-quote italic font-semibold text-amber-300">
+                  Together We Transform
+                </h3>
+                <p className="text-xs text-slate-300">Collaboration for Change</p>
+              </div>
+            </div>
+
+            {/* Pillar 3 */}
+            <div className="flex items-center gap-4 pt-3 md:pt-0 md:px-6">
+              <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0 text-amber-400">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-serif-quote italic font-semibold text-amber-300">
+                  Together We Build a Better Jharkhand
+                </h3>
+                <p className="text-xs text-slate-300">Solutions for Tomorrow</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Golden Quote with Decorative Horizontal Border Lines */}
+          <div className="pt-2 flex items-center justify-center gap-4 max-w-3xl mx-auto text-center">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-amber-400/80"></div>
+            <p className="text-xs sm:text-sm md:text-base font-serif-quote italic text-amber-200/90 px-3">
+              &ldquo;Every challenge is an opportunity to build a better tomorrow.&rdquo;
+            </p>
+            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-amber-400/40 to-amber-400/80"></div>
+          </div>
         </div>
       </section>
+
+      {/* ========================================================================= */}
+      {/* 2. EXPLORE MORE DETAILS SECTION (ON SCROLL) */}
+      {/* ========================================================================= */}
+      <div ref={detailsSectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 text-slate-900">
+        {/* Ecosystem Overview Cards */}
+        <section className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              Grassroots to R&D Pipeline
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-serif-display font-bold text-slate-900 tracking-tight">
+              One Platform &bull; Four Synergistic Stakeholders
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Every citizen challenge logged from Jharkhand&apos;s 24 districts is reviewed, matched to top HEIs, funded by CSR/Industry, and executed in field pilots.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* 1. Citizen */}
+            <div
+              onClick={() => {
+                switchRole('citizen');
+                setCurrentView('role-selection');
+              }}
+              className="p-6 rounded-2xl bg-amber-50/60 border border-amber-200 hover:border-amber-400 hover:shadow-md transition-all cursor-pointer space-y-3 group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-sm shadow-sm group-hover:scale-110 transition-transform">
+                <Users className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">1. Citizen & Community</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Report local water, agro, health, and civic challenges without complex jargon. Track progress from review to village testing.
+              </p>
+              <div className="text-[11px] font-semibold text-amber-800 flex items-center gap-1 pt-1">
+                <span>Access Citizen Portal</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* 2. University */}
+            <div
+              onClick={() => {
+                switchRole('university_admin');
+                setCurrentView('role-selection');
+              }}
+              className="p-6 rounded-2xl bg-emerald-50/60 border border-emerald-200 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer space-y-3 group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow-sm group-hover:scale-110 transition-transform">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">2. Higher Education (HEIs)</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                BIT Mesra, IIT ISM Dhanbad, and NIT Jamshedpur faculty-student cohorts research, prototype, and build scalable solutions.
+              </p>
+              <div className="text-[11px] font-semibold text-emerald-800 flex items-center gap-1 pt-1">
+                <span>Access University Portal</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* 3. Industry */}
+            <div
+              onClick={() => {
+                switchRole('csr_org');
+                setCurrentView('role-selection');
+              }}
+              className="p-6 rounded-2xl bg-blue-50/60 border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer space-y-3 group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm group-hover:scale-110 transition-transform">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">3. Industry & CSR</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Tata Steel, Coal India, and MSMEs commit CSR funding, industrial test benches, mentorship, and commercial scale-up.
+              </p>
+              <div className="text-[11px] font-semibold text-blue-800 flex items-center gap-1 pt-1">
+                <span>Access Industry Portal</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* 4. Government */}
+            <div
+              onClick={() => {
+                switchRole('govt_department');
+                setCurrentView('role-selection');
+              }}
+              className="p-6 rounded-2xl bg-purple-50/60 border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer space-y-3 group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-purple-600 text-white font-bold flex items-center justify-center text-sm shadow-sm group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">4. Government & PMU</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Line departments verify authenticity, fast-track municipal action or sanction state R&D grants for multi-district deployment.
+              </p>
+              <div className="text-[11px] font-semibold text-purple-800 flex items-center gap-1 pt-1">
+                <span>Access Government Portal</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Live State Coverage Metrics */}
+        <section className="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 text-white rounded-3xl p-8 sm:p-10 border border-emerald-500/20 shadow-xl space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div>
+              <span className="text-[10px] font-bold tracking-widest uppercase text-amber-400">
+                State Innovation Telemetry
+              </span>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mt-1">
+                Impact Across Jharkhand&apos;s 24 Districts
+              </h3>
+            </div>
+            <button
+              onClick={() => setCurrentView('map-view')}
+              className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow transition-all flex items-center gap-2 self-start sm:self-auto cursor-pointer"
+            >
+              <MapPin className="w-4 h-4" />
+              <span>Explore Interactive GIS Map</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700">
+              <span className="text-3xl sm:text-4xl font-black text-amber-400 block">412+</span>
+              <span className="text-xs text-slate-300 font-medium">Logged Grassroots Challenges</span>
+            </div>
+            <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700">
+              <span className="text-3xl sm:text-4xl font-black text-emerald-400 block">24 / 24</span>
+              <span className="text-xs text-slate-300 font-medium">Districts with Active Solutions</span>
+            </div>
+            <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700">
+              <span className="text-3xl sm:text-4xl font-black text-indigo-400 block">38 Labs</span>
+              <span className="text-xs text-slate-300 font-medium">Interdisciplinary University Teams</span>
+            </div>
+            <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700">
+              <span className="text-3xl sm:text-4xl font-black text-teal-400 block">₹4.85 Cr</span>
+              <span className="text-xs text-slate-300 font-medium">Sanctioned CSR & Innovation Grants</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Recent Challenges */}
+        <section className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xs space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-800">
+                Live Community Submissions
+              </span>
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+                Recent Challenges Seeking Solutions
+              </h3>
+            </div>
+            <button
+              onClick={() => setCurrentView('explore-challenges')}
+              className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 cursor-pointer"
+            >
+              <span>View All Challenges</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {challenges.slice(0, 3).map((ch) => (
+              <div
+                key={ch.id}
+                onClick={() => navigateToChallenge(ch.id)}
+                className="p-5 rounded-2xl border border-slate-200 hover:border-emerald-500 bg-slate-50/50 hover:bg-white cursor-pointer transition-all flex flex-col justify-between space-y-4 shadow-2xs group"
+              >
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200">
+                      {ch.id}
+                    </span>
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
+                        ch.urgency === 'Critical'
+                          ? 'bg-rose-100 text-rose-800'
+                          : ch.urgency === 'High'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}
+                    >
+                      {ch.urgency}
+                    </span>
+                  </div>
+
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-emerald-800 transition-colors line-clamp-2">
+                    {ch.title}
+                  </h4>
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                    {ch.description}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-600">
+                  <span className="flex items-center gap-1 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                    {ch.district}
+                  </span>
+                  <span className="font-bold text-emerald-800">{ch.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Quick CTA banner */}
+          <div className="pt-4 text-center">
+            <button
+              onClick={handleEnterPortal}
+              className="px-8 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
+            >
+              <span>Access Stakeholder Role Selection Portal</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };

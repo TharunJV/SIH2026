@@ -1,31 +1,33 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { LifecycleTimeline } from '../common/LifecycleTimeline';
-import { AIAnalysisCard } from '../ai/AIAnalysisCard';
-import { TrustStatusBadge } from '../common/TrustStatusBadge';
-import { StakeholderPerspectiveBar } from '../common/StakeholderPerspectiveBar';
-import { IntelligentRoutingCard } from '../common/IntelligentRoutingCard';
+import { getCitizenStatusLabel, getCitizenTrustStatus } from './CitizenDashboard';
 import {
   MapPin,
   Calendar,
-  Users,
-  AlertTriangle,
-  Sparkles,
-  Share2,
-  ThumbsUp,
-  GraduationCap,
-  Building2,
-  Briefcase,
-  CheckCircle2,
   Clock,
-  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+  Building2,
+  GraduationCap,
+  Sparkles,
+  ArrowLeft,
+  ChevronRight,
   ShieldCheck,
   FileText,
-  MessageSquare,
-  Info,
+  ThumbsUp,
+  Share2,
   Camera,
-  Maximize2,
+  Layers,
+  History,
+  Info,
+  Check,
   X,
+  ExternalLink,
+  Award,
+  Users,
+  TrendingUp,
+  RotateCcw,
+  Maximize2,
 } from 'lucide-react';
 import { MultimediaEvidence } from '../../types';
 
@@ -33,407 +35,539 @@ export const CitizenChallengeDetail: React.FC = () => {
   const {
     selectedChallengeId,
     challenges,
-    currentUser,
-    switchRole,
-    navigateToProject,
     setCurrentView,
     showToast,
   } = useApp();
 
   const [endorsed, setEndorsed] = useState(false);
-  const [activeEvidenceModal, setActiveEvidenceModal] = useState<MultimediaEvidence | null>(null);
+  const [following, setFollowing] = useState(false);
+  const [activePhotoModal, setActivePhotoModal] = useState<MultimediaEvidence | null>(null);
 
   const challenge = challenges.find((c) => c.id === selectedChallengeId) || challenges[0];
 
   if (!challenge) {
-    return <div className="p-8 text-center text-slate-500">Challenge not found.</div>;
+    return (
+      <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs space-y-4">
+        <h2 className="text-lg font-bold text-slate-900">Challenge Not Found</h2>
+        <p className="text-xs text-slate-500">The requested problem could not be located.</p>
+        <button
+          onClick={() => setCurrentView('citizen-dashboard')}
+          className="px-5 py-2.5 bg-amber-500 text-slate-950 font-bold text-xs rounded-xl"
+        >
+          Back to Dashboard
+        </button>
+      </div>
+    );
   }
 
+  const statusInfo = getCitizenStatusLabel(challenge.status, challenge.isReopened);
+  const trustInfo = getCitizenTrustStatus(challenge);
+  const isResolved = challenge.status === 'Implemented' || challenge.status === 'Impact Measured';
+  const isReopened = challenge.isReopened || challenge.status === 'Rejected';
 
   const handleEndorse = () => {
     if (!endorsed) {
       challenge.endorsementsCount += 1;
       setEndorsed(true);
-      showToast('success', 'Endorsed Problem', 'Your community endorsement has been recorded by the State PMU.');
+      showToast('success', 'Problem Endorsed', 'Your community endorsement helps prioritize this issue.');
     }
   };
 
-  const isVerifiedState =
-    challenge.status === 'Validated' ||
-    challenge.status === 'University Matching' ||
-    challenge.status === 'Assigned' ||
-    challenge.status === 'In Development' ||
-    challenge.status === 'Pilot' ||
-    challenge.status === 'Implemented';
+  const handleFollow = () => {
+    setFollowing(!following);
+    showToast(
+      'info',
+      following ? 'Unfollowed Challenge' : 'Following Challenge',
+      following ? 'You will no longer receive live SMS/portal updates.' : 'You will receive notifications on university assignments and solution progress.'
+    );
+  };
+
+  // Human-Friendly Timeline Steps (Section 20)
+  const timelineStages = [
+    {
+      id: 'submitted',
+      label: 'Problem Reported',
+      date: challenge.submittedAt ? new Date(challenge.submittedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : '28 Aug 2026',
+      done: true,
+      description: 'Citizen report received and registered in the state system.',
+    },
+    {
+      id: 'evidence',
+      label: 'Evidence Submitted',
+      date: challenge.submittedAt ? new Date(challenge.submittedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : '28 Aug 2026',
+      done: (challenge.evidence || []).length > 0,
+      description: `${(challenge.evidence || []).length} photos and geotag data attached.`,
+    },
+    {
+      id: 'reviewed',
+      label: 'Report Reviewed',
+      date: '29 Aug 2026',
+      done: challenge.status !== 'Submitted',
+      description: 'Nodal verification team inspected details.',
+    },
+    {
+      id: 'published',
+      label: 'Challenge Published',
+      date: '30 Aug 2026',
+      done: challenge.status !== 'Submitted' && challenge.status !== 'Under Review',
+      description: 'Open on the state innovation portal for institutions.',
+    },
+    {
+      id: 'interest',
+      label: 'University Expressed Interest',
+      date: '02 Sep 2026',
+      done:
+        challenge.status === 'University Matching' ||
+        challenge.status === 'Assigned' ||
+        challenge.status === 'In Development' ||
+        challenge.status === 'Pilot' ||
+        challenge.status === 'Implemented',
+      description: challenge.assignedUniversityName
+        ? `${challenge.assignedUniversityName} reviewed problem domain.`
+        : 'Universities reviewing technical feasibility.',
+    },
+    {
+      id: 'assigned',
+      label: 'University Assigned',
+      date: '04 Sep 2026',
+      done:
+        challenge.status === 'Assigned' ||
+        challenge.status === 'In Development' ||
+        challenge.status === 'Pilot' ||
+        challenge.status === 'Implemented',
+      description: challenge.assignedUniversityName
+        ? `Officially allocated to ${challenge.assignedUniversityName}.`
+        : 'Allocation pending.',
+    },
+    {
+      id: 'in_progress',
+      label: 'Solution in Progress',
+      date: 'Active',
+      done: challenge.status === 'In Development' || challenge.status === 'Pilot' || challenge.status === 'Implemented',
+      isCurrent: challenge.status === 'In Development' || challenge.status === 'Pilot',
+      description: 'Prototype development and field testing underway.',
+    },
+    {
+      id: 'outcome',
+      label: isResolved ? 'Problem Addressed' : 'Public Outcome',
+      date: isResolved ? 'Completed' : 'Pending',
+      done: isResolved,
+      description: isResolved ? 'Successful implementation verified on site.' : 'Awaiting final rollout verification.',
+    },
+  ];
+
+  // Mock previous failed attempts for institutional memory (Section 22)
+  const previousAttempts = challenge.previousAttempts || (isReopened ? [
+    {
+      attemptNumber: 1,
+      universityName: 'Ranchi Regional Institute of Technology',
+      outcome: 'Unsuccessful' as const,
+      completedDate: '15 June 2026',
+      publicSummary: 'Initial solar filtration system faced seasonal water silt clogging during heavy monsoon testing.',
+      publicReportUrl: '#',
+    },
+  ] : []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      {/* Top Banner with Tracking ID & Trust Status */}
-      <div className="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+    <div className="max-w-4xl mx-auto space-y-6 font-sans-body">
+      {/* Top Breadcrumb */}
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setCurrentView('citizen-my-challenges')}
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-amber-700 cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to My Challenges</span>
+        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleFollow}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer flex items-center gap-1.5 ${
+              following
+                ? 'bg-amber-100 text-amber-900 border-amber-300'
+                : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span>{following ? 'Following Updates' : 'Follow Challenge'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleEndorse}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              endorsed
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+            }`}
+          >
+            <ThumbsUp className="w-3.5 h-3.5" />
+            <span>{endorsed ? 'Endorsed' : 'Endorse'} ({challenge.endorsementsCount || 0})</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 1. HEADER & BASIC DETAILS (SECTION 19) */}
+      {/* ========================================================================= */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-5">
+        {/* Top Badges */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
+            <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
+              Challenge ID: {challenge.id}
+            </span>
+            <span
+              className={`text-xs font-semibold px-3 py-1 rounded-full border ${trustInfo.bg} ${trustInfo.color}`}
+            >
+              {trustInfo.label}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span
+              className={`text-xs font-bold px-3 py-1 rounded-full border ${statusInfo.bg} ${statusInfo.border} ${statusInfo.color}`}
+            >
+              {statusInfo.label}
+            </span>
+            <span className="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1 rounded-full border border-amber-300/60">
               {challenge.category}
             </span>
-            <span className="text-slate-400 text-xs font-mono font-bold bg-slate-800 px-2 py-0.5 rounded">
-              ID: {challenge.id}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <TrustStatusBadge
-              status={challenge.status}
-              hasEvidence={(challenge.evidence || []).length > 0}
-              isVerified={isVerifiedState}
-              size="sm"
-            />
-            <span
-              className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase ${
-                challenge.urgency === 'Critical'
-                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                  : challenge.urgency === 'High'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                  : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-              }`}
-            >
-              {challenge.urgency} Urgency
-            </span>
           </div>
         </div>
 
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
+        {/* Title & Description */}
+        <div className="space-y-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             {challenge.title}
           </h1>
-          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 mt-2">
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-              {challenge.village}, {challenge.block}, {challenge.district}
-            </span>
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-slate-400" />
-              Submitted {new Date(challenge.submittedAt).toLocaleDateString()}
-            </span>
-            <span className="flex items-center gap-1">
-              <Users className="w-3.5 h-3.5 text-slate-400" />
-              Affected: {(challenge.affectedPopulation || 0).toLocaleString()} citizens
-            </span>
-          </div>
-        </div>
-
-        {/* Trust Workflow Explainer */}
-        <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 flex items-start gap-2.5">
-          <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <p className="leading-relaxed text-[11px]">
-            <strong>Verification Notice:</strong> This record originated as a community report. The platform investigates and field-verifies submissions with local nodal officers before deploying university R&D or state resources.
+          <p className="text-sm text-slate-700 leading-relaxed">
+            {challenge.description}
           </p>
         </div>
 
-        {/* Action controls */}
-        <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleEndorse}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-                endorsed
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white border border-slate-700'
-              }`}
-            >
-              <ThumbsUp className="w-3.5 h-3.5" />
-              <span>{endorsed ? 'Endorsed by You' : 'Endorse Problem'} ({challenge.endorsementsCount})</span>
-            </button>
-            <button
-              onClick={() => {
-                showToast('info', 'Share Link Copied', 'Challenge URL copied to clipboard for Gram Sabha circulation.');
-              }}
-              className="p-1.5 bg-slate-800 text-slate-300 hover:text-white rounded-lg border border-slate-700"
-              title="Share"
-            >
-              <Share2 className="w-4 h-4" />
-            </button>
+        {/* Location & Metadata */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-2.5">
+            <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase font-bold block">Location</span>
+              <span className="text-xs font-bold text-slate-900">
+                {challenge.village ? `${challenge.village}, ` : ''}{challenge.district}
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {challenge.projectId && (
-              <button
-                onClick={() => navigateToProject(challenge.projectId!)}
-                className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5"
-              >
-                <span>Inspect Active R&D Project &rarr;</span>
-              </button>
-            )}
-            <button
-              onClick={() => {
-                switchRole('university_admin');
-                setCurrentView('university-dashboard');
-              }}
-              className="px-3.5 py-1.5 bg-indigo-900/80 hover:bg-indigo-800 text-indigo-200 border border-indigo-700 text-xs font-semibold rounded-lg flex items-center gap-1"
-            >
-              <GraduationCap className="w-3.5 h-3.5" />
-              <span>Evaluate as HEI</span>
-            </button>
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-2.5">
+            <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase font-bold block">Reported On</span>
+              <span className="text-xs font-bold text-slate-900">
+                {challenge.submittedAt ? new Date(challenge.submittedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recent'}
+              </span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-2.5">
+            <Users className="w-4 h-4 text-slate-500 shrink-0" />
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase font-bold block">Community Impact</span>
+              <span className="text-xs font-bold text-slate-900">
+                {(challenge.affectedPopulation || 500).toLocaleString()} residents affected
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Multi-Stakeholder Perspective View */}
-      <StakeholderPerspectiveBar
-        challengeId={challenge.id}
-        category={challenge.category}
-        status={challenge.status}
-        assignedUniversity={challenge.assignedUniversityName}
-      />
+      {/* ========================================================================= */}
+      {/* 2. REOPENED CHALLENGE BANNER (SECTION 23) */}
+      {/* ========================================================================= */}
+      {isReopened && (
+        <div className="bg-amber-50 rounded-3xl p-6 border-2 border-amber-300 shadow-2xs space-y-3">
+          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm sm:text-base">
+            <RotateCcw className="w-5 h-5 text-amber-700" />
+            <span>Open for Another Attempt</span>
+          </div>
+          <p className="text-xs sm:text-sm text-amber-950 leading-relaxed">
+            The previous solution attempt was unsuccessful. The challenge remains open so another capable university team or innovation partner can try.
+          </p>
+          <div className="text-[11px] text-amber-800 font-medium">
+            &bull; The platform automatically matches new institutions. You do not need to take any action.
+          </div>
+        </div>
+      )}
 
-      {/* Intelligent Solution Pathway Card */}
-      <IntelligentRoutingCard
-        category={challenge.category}
-        recommendedPathway={challenge.category === 'Public Service Delivery' ? 'public_service' : 'innovation_rnd'}
-      />
-
-      {/* 10-Stage Lifecycle Visual Stepper */}
-      <LifecycleTimeline currentStatus={challenge.status} />
-
-      {/* AI Problem Analysis Card */}
-      <AIAnalysisCard analysis={challenge.aiAnalysis} />
-
-      {/* Detailed Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Problem Narrative, Impact, Evidence (2 cols) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Detailed Narrative */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-            <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
-              Problem Description & Background
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-              {challenge.description}
-            </p>
-
-            <div className="pt-3 border-t border-slate-100">
-              <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider mb-1.5">
-                Expected Societal Impact
-              </h4>
-              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950 leading-relaxed font-medium">
-                {challenge.expectedImpact}
-              </div>
+      {/* ========================================================================= */}
+      {/* 3. SUCCESSFUL OUTCOME CARD (SECTION 24) */}
+      {/* ========================================================================= */}
+      {isResolved && (
+        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 rounded-3xl p-6 sm:p-8 border-2 border-emerald-400 shadow-xs space-y-4">
+          <div className="flex items-center gap-2.5 text-emerald-900">
+            <Award className="w-6 h-6 text-emerald-600" />
+            <div>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase">
+                Success
+              </span>
+              <h2 className="text-lg font-bold text-emerald-950 mt-0.5">
+                Solution Successfully Implemented
+              </h2>
             </div>
-
-            {challenge.additionalInformation && (
-              <div className="pt-2">
-                <span className="text-xs font-bold text-slate-700 block mb-1">Local Context & Site Readiness:</span>
-                <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                  {challenge.additionalInformation}
-                </p>
-              </div>
-            )}
           </div>
 
-          {/* Multimedia Evidence Gallery */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-            <h3 className="font-bold text-xs text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
-              <span>Multimedia Evidence & Lab Verification</span>
-              <span className="text-[10px] text-slate-500 font-normal">{(challenge.evidence || []).length} Files Attached</span>
-            </h3>
+          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+            {challenge.publicOutcome?.summary ||
+              'A low-cost, gravity-fed filtration system was engineered by Birla Institute of Technology (BIT) Mesra with Tata Steel support, providing verified clean potable water to local residents.'}
+          </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(challenge.evidence || []).map((ev) => (
-                <div key={ev.id} className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 group">
-                  {ev.type === 'image' ? (
-                    <div className="relative rounded-lg overflow-hidden h-44 bg-slate-900 border border-slate-200">
-                      <img
-                        src={ev.url}
-                        alt={ev.caption}
-                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
-                      />
-                      {/* Top Geotag Stamp */}
-                      <div className="absolute top-0 inset-x-0 bg-slate-950/80 backdrop-blur-xs text-white p-1.5 px-2 flex items-center justify-between text-[10px] font-mono border-b border-white/10">
-                        <span className="flex items-center gap-1 text-emerald-300 font-bold">
-                          <MapPin className="w-3 h-3 text-emerald-400 shrink-0" />
-                          {(ev.gpsCoordinates?.lat || challenge.gpsCoordinates?.lat || 22.9567).toFixed(4)}° N,{' '}
-                          {(ev.gpsCoordinates?.lng || challenge.gpsCoordinates?.lng || 85.0844).toFixed(4)}° E
-                        </span>
-                        <span className="text-slate-300 text-[9px]">{ev.timestamp}</span>
-                      </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+            <div className="p-3 rounded-2xl bg-white border border-emerald-200">
+              <span className="text-[10px] text-slate-500 uppercase font-bold block">Beneficiaries</span>
+              <span className="text-lg font-black text-emerald-800">
+                {(challenge.publicOutcome?.beneficiariesCount || 2400).toLocaleString()} residents
+              </span>
+            </div>
 
-                      {/* Bottom Location Watermark & Inspect Button */}
-                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent text-white p-1.5 px-2 flex items-center justify-between text-[10px]">
-                        <span className="truncate text-slate-200 font-medium text-[10px]">
-                          📍 {ev.geotagLocation || `${challenge.block}, ${challenge.district}`}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setActiveEvidenceModal(ev)}
-                          className="p-1 rounded-md bg-white/20 hover:bg-white/40 text-white shrink-0 ml-1 transition-all"
-                          title="Inspect Geotag Details"
-                        >
-                          <Maximize2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full h-44 bg-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-600 gap-2">
-                      <FileText className="w-10 h-10 text-slate-400" />
-                      <span className="text-xs font-bold">PDF Verification Document</span>
-                    </div>
-                  )}
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="font-bold text-xs text-slate-900 block line-clamp-1">{ev.caption}</span>
-                      <span className="text-[10px] text-slate-500">
-                        {ev.isGeotagged !== false ? '🟢 GPS Verified Geotag' : 'Verified Evidence'} &bull; {ev.timestamp}
-                      </span>
-                    </div>
-                    {ev.type === 'image' && (
-                      <button
-                        onClick={() => setActiveEvidenceModal(ev)}
-                        className="text-[10px] font-bold text-emerald-700 hover:underline shrink-0"
-                      >
-                        Inspect
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="p-3 rounded-2xl bg-white border border-emerald-200">
+              <span className="text-[10px] text-slate-500 uppercase font-bold block">Districts Affected</span>
+              <span className="text-lg font-black text-slate-900">
+                {challenge.publicOutcome?.districtsCount || 1} District
+              </span>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-white border border-emerald-200 col-span-2 sm:col-span-1">
+              <span className="text-[10px] text-slate-500 uppercase font-bold block">Deployment Status</span>
+              <span className="text-xs font-bold text-emerald-800">
+                {challenge.publicOutcome?.deploymentStatus || 'Pilot Completed & Handed Over'}
+              </span>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Right Sidebar: Submitter Info, Allocation, Timeline (1 col) */}
-        <div className="space-y-6">
-          {/* Submitter Card */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-              Challenge Submitted By
-            </span>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-sm">
-                {(challenge.submittedBy?.userName || 'A').charAt(0)}
+      {/* ========================================================================= */}
+      {/* 4. VISUAL CHALLENGE TIMELINE (SECTION 20) */}
+      {/* ========================================================================= */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-6">
+        <div>
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+            Challenge Progress Timeline
+          </h2>
+          <p className="text-xs text-slate-500">
+            Real-time status tracking as your problem moves from verification to solution deployment.
+          </p>
+        </div>
+
+        <div className="relative pl-6 sm:pl-8 space-y-6 border-l-2 border-slate-200 ml-3">
+          {timelineStages.map((st, idx) => (
+            <div key={st.id} className="relative group">
+              {/* Timeline Bullet Icon */}
+              <div
+                className={`absolute -left-[31px] sm:-left-[39px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-transform ${
+                  st.done
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : st.isCurrent
+                    ? 'bg-amber-500 text-slate-950 ring-4 ring-amber-100 animate-pulse'
+                    : 'bg-slate-200 text-slate-500'
+                }`}
+              >
+                {st.done ? <Check className="w-3.5 h-3.5" /> : idx + 1}
               </div>
+
+              {/* Content */}
+              <div className="space-y-0.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3
+                    className={`text-xs sm:text-sm font-bold ${
+                      st.done
+                        ? 'text-slate-900'
+                        : st.isCurrent
+                        ? 'text-amber-800'
+                        : 'text-slate-500'
+                    }`}
+                  >
+                    {st.label}
+                  </h3>
+                  <span className="text-[10px] text-slate-600 font-medium">
+                    &bull; {st.date}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">{st.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 5. SOLUTION PARTNER (UNIVERSITY) PUBLIC INFORMATION (SECTION 21) */}
+      {/* ========================================================================= */}
+      {challenge.assignedUniversityName && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-4">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="w-5 h-5 text-purple-600" />
+            <h2 className="text-base sm:text-lg font-bold text-slate-900">
+              Solution Partner
+            </h2>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-purple-50/60 border border-purple-200/80 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h4 className="text-xs font-bold text-slate-900">{challenge.submittedBy?.userName || 'Anonymous Submitter'}</h4>
-                <p className="text-[11px] text-slate-600 capitalize">
-                  {challenge.submittedBy?.organization || challenge.submittedBy?.userRole?.replace('_', ' ') || 'Citizen'}
-                </p>
-                <p className="text-[10px] text-slate-500">{challenge.submittedBy?.contactNumber || ''}</p>
+                <span className="text-[10px] uppercase font-bold text-purple-800 tracking-wider">
+                  Assigned Institution
+                </span>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                  {challenge.assignedUniversityName}
+                </h3>
               </div>
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-white text-purple-900 border border-purple-300 self-start sm:self-auto">
+                Higher Education Institution
+              </span>
+            </div>
+
+            {/* Public Progress */}
+            <div className="space-y-1.5 pt-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-700">Solution Development Progress</span>
+                <span className="font-black text-purple-900">65% Completed</span>
+              </div>
+              <div className="w-full h-2 bg-purple-100 rounded-full overflow-hidden">
+                <div className="h-full bg-purple-600 rounded-full w-[65%]" />
+              </div>
+            </div>
+
+            {/* Public Summary */}
+            <p className="text-xs text-slate-700 pt-1">
+              <strong>Public Project Scope:</strong> Multidisciplinary research team is developing and field-testing a localized low-cost filtration prototype designed for tribal settlements.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6. PREVIOUS FAILED ATTEMPTS (SECTION 22 - INSTITUTIONAL MEMORY) */}
+      {/* ========================================================================= */}
+      {previousAttempts.length > 0 && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 text-slate-900">
+            <History className="w-5 h-5 text-slate-600" />
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                Previous Attempts History
+              </h2>
+              <p className="text-xs text-slate-500">
+                These previous attempts help future teams understand what has already been tried.
+              </p>
             </div>
           </div>
 
-          {/* Assigned University & Mentors */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-              University Allocation
-            </span>
-            {challenge.assignedUniversityName ? (
-              <div className="p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-indigo-700" />
-                  <span className="text-xs font-bold text-indigo-950">{challenge.assignedUniversityName}</span>
+          <div className="space-y-3">
+            {previousAttempts.map((att) => (
+              <div
+                key={att.attemptNumber}
+                className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-900">
+                    Attempt {att.attemptNumber} &bull; {att.universityName}
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
+                    {att.outcome}
+                  </span>
                 </div>
-                {challenge.assignedFacultyName && (
-                  <p className="text-[11px] text-indigo-900">
-                    <strong>Mentor:</strong> {challenge.assignedFacultyName}
-                  </p>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {att.publicSummary}
+                </p>
+                <div className="text-[10px] text-slate-600 font-medium">
+                  Tested: {att.completedDate}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 7. EVIDENCE GALLERY */}
+      {/* ========================================================================= */}
+      {(challenge.evidence || []).length > 0 && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Camera className="w-5 h-5 text-amber-600" />
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                Submitted Photos & Evidence
+              </h2>
+            </div>
+            <span className="text-xs text-slate-500 font-medium">
+              {(challenge.evidence || []).length} items attached
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {challenge.evidence.map((ev) => (
+              <div
+                key={ev.id}
+                onClick={() => setActivePhotoModal(ev)}
+                className="relative group rounded-2xl overflow-hidden border border-slate-200 aspect-4/3 cursor-pointer bg-slate-100"
+              >
+                <img
+                  src={ev.url}
+                  alt={ev.caption || 'Evidence Photo'}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                  <Maximize2 className="w-5 h-5" />
+                </div>
+                {ev.isGeotagged && (
+                  <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-xs text-[9px] font-bold text-emerald-300 flex items-center gap-1">
+                    <MapPin className="w-2.5 h-2.5" />
+                    <span>Geotagged</span>
+                  </div>
                 )}
               </div>
-            ) : (
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-500">
-                Pending evaluation by recommended HEIs (BIT Mesra / IIT ISM).
-              </div>
-            )}
-          </div>
-
-          {/* Historical Activity Log */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
-            <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
-              Lifecycle Activity History
-            </h4>
-            <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-              {(challenge.timeline || []).map((item, idx) => (
-                <div key={idx} className="relative pl-5 border-l-2 border-slate-200 text-xs space-y-0.5">
-                  <span className="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-emerald-600"></span>
-                  <div className="flex items-center justify-between text-[11px]">
-                    <strong className="text-slate-900">{item.stage}</strong>
-                    <span className="text-[10px] text-slate-400">{item.date}</span>
-                  </div>
-                  <p className="text-[11px] text-slate-600">{item.description}</p>
-                  <span className="text-[10px] text-slate-400 block italic">Actor: {item.actor}</span>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
-      {/* LIGHTBOX EVIDENCE MODAL */}
-      {activeEvidenceModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="bg-slate-900 text-white rounded-3xl max-w-2xl w-full overflow-hidden border border-slate-800 shadow-2xl space-y-4">
-            <div className="p-4 px-6 border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Camera className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold text-white">
-                  Field Evidence & Geotag Inspection
-                </span>
-              </div>
+      {/* Photo Preview Modal */}
+      {activePhotoModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setActivePhotoModal(null)}
+        >
+          <div
+            className="relative max-w-2xl w-full bg-slate-900 text-white rounded-3xl overflow-hidden p-4 space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span className="text-xs font-bold text-slate-300">
+                {activePhotoModal.caption || 'Evidence Preview'}
+              </span>
               <button
-                onClick={() => setActiveEvidenceModal(null)}
-                className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                type="button"
+                onClick={() => setActivePhotoModal(null)}
+                className="p-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-
-            <div className="px-6 space-y-4">
-              <div className="relative rounded-2xl overflow-hidden aspect-video bg-black border border-slate-800">
-                <img
-                  src={activeEvidenceModal.url}
-                  alt={activeEvidenceModal.caption}
-                  className="w-full h-full object-contain"
-                />
-                <div className="absolute top-2 left-2 bg-black/80 backdrop-blur-xs text-emerald-300 px-3 py-1 rounded-full text-xs font-mono font-bold flex items-center gap-1.5 border border-emerald-500/30">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                  {(activeEvidenceModal.gpsCoordinates?.lat || challenge.gpsCoordinates?.lat || 22.9567).toFixed(4)}° N,{' '}
-                  {(activeEvidenceModal.gpsCoordinates?.lng || challenge.gpsCoordinates?.lng || 85.0844).toFixed(4)}° E
-                </div>
+            <img
+              src={activePhotoModal.url}
+              alt="Preview"
+              className="w-full max-h-[70vh] object-contain rounded-xl"
+            />
+            {activePhotoModal.geotagLocation && (
+              <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                <span>{activePhotoModal.geotagLocation}</span>
               </div>
-
-              {/* Geotag metadata card */}
-              <div className="p-4 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-2 text-xs">
-                <div className="flex items-center justify-between border-b border-slate-700 pb-2">
-                  <span className="font-bold text-slate-200">{activeEvidenceModal.caption}</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/40">
-                    🟢 Verified GPS Geotag
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] text-slate-300 pt-1">
-                  <div>
-                    <span className="text-slate-500 block text-[10px]">District & Location</span>
-                    <strong className="text-white">
-                      {activeEvidenceModal.geotagLocation || `${challenge.block}, ${challenge.district}`}
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block text-[10px]">Recorded Timestamp</span>
-                    <strong className="text-white">{activeEvidenceModal.timestamp}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block text-[10px]">Challenge ID</span>
-                    <strong className="text-amber-400 font-mono">{challenge.id}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 px-6 border-t border-slate-800 flex justify-end">
-              <button
-                onClick={() => setActiveEvidenceModal(null)}
-                className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all"
-              >
-                Close Inspection
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}
