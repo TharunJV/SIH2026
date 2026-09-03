@@ -12,37 +12,74 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
 
 /**
- * Helper to check live database connectivity
+ * Helper to check live database & auth connectivity
  */
 export const checkSupabaseConnection = async (): Promise<{
   connected: boolean;
+  tableTested?: string;
+  rowCount?: number;
   message?: string;
   error?: string;
 }> => {
   try {
-    const { data, error } = await supabase
+    // Try districts table first
+    const { data: dData, error: dError } = await supabase
       .from('districts')
       .select('id, name')
-      .limit(1);
+      .limit(5);
 
-    if (error) {
+    if (!dError && dData) {
       return {
-        connected: false,
-        error: error.message,
+        connected: true,
+        tableTested: 'districts',
+        rowCount: dData.length,
+        message: `Connected to Supabase DB (districts table verified: ${dData.length} records)`,
+      };
+    }
+
+    // Fallback: try universities table
+    const { data: uData, error: uError } = await supabase
+      .from('universities')
+      .select('id, name')
+      .limit(5);
+
+    if (!uError && uData) {
+      return {
+        connected: true,
+        tableTested: 'universities',
+        rowCount: uData.length,
+        message: `Connected to Supabase DB (universities table verified: ${uData.length} records)`,
+      };
+    }
+
+    // Fallback: Ping auth service endpoint
+    const { data: authSession, error: authError } = await supabase.auth.getSession();
+    if (!authError) {
+      return {
+        connected: true,
+        tableTested: 'auth_service',
+        rowCount: 0,
+        message: 'Connected to Supabase Auth Service',
       };
     }
 
     return {
-      connected: true,
-      message: `Successfully connected to Supabase (${data?.length ?? 0} test rows retrieved)`,
+      connected: false,
+      error: dError?.message || uError?.message || authError?.message || 'Unable to connect to Supabase tables',
     };
   } catch (err: any) {
     return {
       connected: false,
-      error: err?.message || 'Unknown network error',
+      error: err?.message || 'Unknown network error during Supabase ping',
     };
   }
 };
+

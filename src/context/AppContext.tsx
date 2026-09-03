@@ -4,6 +4,8 @@ import { MOCK_USERS, MOCK_CHALLENGES, MOCK_PROJECTS, MOCK_NOTIFICATIONS } from '
 import { challengeService } from '../services/challengeService';
 import { projectService } from '../services/projectService';
 import { communicationService } from '../services/communicationService';
+import { tanstackRouter } from '../router/tanstackRouter';
+import { getViewRoutePath } from '../router/routeUtils';
 
 export type AppView =
   | 'landing'
@@ -185,7 +187,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User>(MOCK_USERS[0]); // Sunita Devi (Citizen)
-  const [currentView, setCurrentView] = useState<AppView>('landing');
+  const [currentView, setCurrentViewState] = useState<AppView>('landing');
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>('JH-2026-001248');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>('PROJ-JH-2026-0081');
   const [challenges, setChallenges] = useState<Challenge[]>(MOCK_CHALLENGES);
@@ -195,6 +197,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isDemoTourActive, setIsDemoTourActive] = useState<boolean>(true);
   const [currentDemoStep, setCurrentDemoStep] = useState<number>(1);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+
+  const setCurrentView = (view: AppView) => {
+    setCurrentViewState(view);
+    const path = getViewRoutePath(view, selectedChallengeId, selectedProjectId);
+    tanstackRouter.navigate({ to: path as any });
+  };
+
 
   const switchRole = (role: UserRole) => {
     const userMatch = MOCK_USERS.find((u) => u.role === role) || {
