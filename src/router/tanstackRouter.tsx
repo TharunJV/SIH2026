@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import {
   createRootRoute,
@@ -9,6 +10,7 @@ import {
   Navigate,
 } from '@tanstack/react-router';
 
+import { DemoProvider } from '../context/DemoContext';
 import { AppProvider, useApp, AppView } from '../context/AppContext';
 import { Header } from '../components/common/Header';
 import { Footer } from '../components/common/Footer';
@@ -88,11 +90,13 @@ const ProjectWorkspaceWrapper: React.FC = () => {
 const RootComponent: React.FC = () => {
   return (
     <AppProvider>
-      <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100 font-sans antialiased">
-        <Outlet />
-        <ToastContainer />
-        <AuthModal />
-      </div>
+      <DemoProvider>
+        <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100 font-sans antialiased">
+          <Outlet />
+          <ToastContainer />
+          <AuthModal />
+        </div>
+      </DemoProvider>
     </AppProvider>
   );
 };

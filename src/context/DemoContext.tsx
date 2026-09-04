@@ -1,8 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+} from 'react';
+
 import { UserRole } from '../types';
 import { MOCK_USERS } from '../mock/data';
 import { useToast } from './ToastContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 
 export type AppView =
   | 'welcome'
@@ -36,35 +42,46 @@ export type AppView =
   | 'stakeholder-login';
 
 export const VIEW_TO_PATH: Record<AppView, string> = {
-  'welcome': '/',
-  'landing': '/home',
-  'role-selection': '/login',
-  'login': '/login',
-  'citizen-login': '/login/citizen',
-  'about': '/home',
+  welcome: '/',
+  landing: '/landing',
+  'role-selection': '/role-selection',
+  login: '/login',
+  'citizen-login': '/login',
+  about: '/landing',
   'how-it-works': '/how-it-works',
-  'explore-challenges': '/explore',
-  'challenge-detail': '/explore',
-  'submit-challenge': '/submit',
-  'universities': '/universities',
-  'industry': '/industry',
-  'impact': '/impact',
-  'map-view': '/map',
-  'messages': '/messages',
+
+  'explore-challenges': '/explore-challenges',
+  'challenge-detail': '/challenge-detail',
+  'submit-challenge': '/submit-challenge',
+
+  universities: '/universities',
+  industry: '/industry',
+  impact: '/impact',
+  'map-view': '/map-view',
+
+  messages: '/landing',
+
   'citizen-dashboard': '/dashboard/citizen',
-  'citizen-my-challenges': '/dashboard/citizen',
+  'citizen-my-challenges': '/dashboard/citizen/my-challenges',
+
   'university-dashboard': '/dashboard/university',
-  'university-challenges': '/dashboard/university',
-  'university-teams': '/dashboard/university',
-  'university-proposals': '/dashboard/university',
+  'university-challenges': '/dashboard/university/challenges',
+  'university-teams': '/dashboard/university/teams',
+  'university-proposals': '/dashboard/university/proposals',
   'university-milestones': '/dashboard/university',
+
   'industry-dashboard': '/dashboard/industry',
   'industry-partnerships': '/dashboard/industry',
   'industry-funding': '/dashboard/industry',
-  'project-detail': '/project',
+
+  'project-detail': '/project-workspace',
+
   'government-dashboard': '/dashboard/government',
-  'admin-dashboard': '/dashboard/admin',
-  'stakeholder-login': '/login/stakeholder',
+
+  // These routes are not currently defined in tanstackRouter.tsx,
+  // so use a safe existing route.
+  'admin-dashboard': '/landing',
+  'stakeholder-login': '/login',
 };
 
 export interface DemoStep {
@@ -85,8 +102,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetView: 'landing',
     description:
       'Welcome to JH Innovation Connect - Government of Jharkhand portal for crowdsourcing community challenges and connecting Universities & Industry.',
-    highlightAction: 'Explore the public ecosystem overview and click "Submit a Challenge".',
+    highlightAction:
+      'Explore the public ecosystem overview and click "Submit a Challenge".',
   },
+
   {
     stepNumber: 2,
     title: 'Citizen Challenge Crowdsourcing',
@@ -94,8 +113,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetView: 'submit-challenge',
     description:
       'Citizens, PRIs, or NGOs submit local challenges with geotagging, affected population, urgency, and multimedia evidence.',
-    highlightAction: 'Review the intuitive submission wizard and auto-generated AI triage.',
+    highlightAction:
+      'Review the intuitive submission wizard and auto-generated AI triage.',
   },
+
   {
     stepNumber: 3,
     title: 'AI Problem Triage & University Routing',
@@ -104,8 +125,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetId: 'JH-2026-001248',
     description:
       'AI Engine analyzes urgency (94/100), detects semantic duplicates across blocks, and matches Top 3 Jharkhand Universities with faculty strengths.',
-    highlightAction: 'Inspect the AI analysis card and recommended HEIs (BIT Mesra, IIT ISM Dhanbad).',
+    highlightAction:
+      'Inspect the AI analysis card and recommended HEIs (BIT Mesra, IIT ISM Dhanbad).',
   },
+
   {
     stepNumber: 4,
     title: 'University Evaluation & Team Formation',
@@ -114,8 +137,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetId: 'JH-2026-001248',
     description:
       'University evaluates the problem, assigns faculty mentors, and forms a multidisciplinary student team (Chemical + IoT + Civil).',
-    highlightAction: 'View assigned challenge evaluation and the multidisciplinary team roster.',
+    highlightAction:
+      'View assigned challenge evaluation and the multidisciplinary team roster.',
   },
+
   {
     stepNumber: 5,
     title: 'Solution Proposal & CSR Co-Funding',
@@ -123,8 +148,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetView: 'university-proposals',
     description:
       'Faculty and student leads submit comprehensive technical proposal with budget breakdown, TRL roadmap, and CSR co-funding request.',
-    highlightAction: 'Examine the Jal-Shuddhi proposal approved with Tata Trusts grant.',
+    highlightAction:
+      'Examine the Jal-Shuddhi proposal approved with Tata Trusts grant.',
   },
+
   {
     stepNumber: 6,
     title: 'Industry & CSR Collaboration Hub',
@@ -132,8 +159,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetView: 'industry-dashboard',
     description:
       'Industries (Tata Steel, BCCL, SAIL) and CSR foundations commit funding, assign co-mentors, and provide testing facilities.',
-    highlightAction: 'See industry funding commitments and active student co-mentorship.',
+    highlightAction:
+      'See industry funding commitments and active student co-mentorship.',
   },
+
   {
     stepNumber: 7,
     title: '14-Stage Project Lifecycle & Field Pilot',
@@ -142,8 +171,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetId: 'PROJ-JH-2026-0081',
     description:
       'Complete 14-stage innovation workflow: Milestones, TRL 5 prototype validation, Patent application, and Village field pilot results.',
-    highlightAction: 'Review milestone deliverables, Indian Patent filing, and live water telemetry.',
+    highlightAction:
+      'Review milestone deliverables, Indian Patent filing, and live water telemetry.',
   },
+
   {
     stepNumber: 8,
     title: 'Government State Monitoring & Analytics',
@@ -151,8 +182,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetView: 'government-dashboard',
     description:
       'Higher Education Dept & State PMU track 24-district heatmaps, domain distribution, university performance, and societal ROI.',
-    highlightAction: 'Filter by district and analyze cross-department societal impact analytics.',
+    highlightAction:
+      'Filter by district and analyze cross-department societal impact analytics.',
   },
+
   {
     stepNumber: 9,
     title: 'Interactive Jharkhand Geographical Map',
@@ -160,8 +193,10 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetView: 'map-view',
     description:
       'Geospatial challenge map showing clusters across all 24 districts with domain heat levels and live community endorsements.',
-    highlightAction: 'Click district pins (Khunti, Dhanbad, Gumla, Ranchi) to view localized challenges.',
+    highlightAction:
+      'Click district pins (Khunti, Dhanbad, Gumla, Ranchi) to view localized challenges.',
   },
+
   {
     stepNumber: 10,
     title: 'State Impact Scorecard & Success Stories',
@@ -169,7 +204,8 @@ export const JUDGE_DEMO_STEPS: DemoStep[] = [
     targetView: 'impact',
     description:
       'Verified public impact: 1.48M+ lives impacted, 58 patents filed, 27 startups incubated, and ₹19.4 Cr CSR mobilized.',
-    highlightAction: 'Celebrate the full citizen-to-solution innovation lifecycle!',
+    highlightAction:
+      'Celebrate the full citizen-to-solution innovation lifecycle!',
   },
 ];
 
@@ -184,44 +220,83 @@ interface DemoContextType {
 
 const DemoContext = createContext<DemoContextType | undefined>(undefined);
 
-export const DemoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const DemoProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [isDemoTourActive, setIsDemoTourActive] = useState(true);
   const [currentDemoStep, setCurrentDemoStep] = useState(1);
+
   const { showToast } = useToast();
+
+  // IMPORTANT:
+  // This is TanStack Router's useNavigate,
+  // NOT react-router-dom's useNavigate.
   const navigate = useNavigate();
 
   const goToDemoStep = (stepNumber: number) => {
-    const step = JUDGE_DEMO_STEPS.find((s) => s.stepNumber === stepNumber);
+    const step = JUDGE_DEMO_STEPS.find(
+      (s) => s.stepNumber === stepNumber
+    );
+
     if (!step) return;
 
     setCurrentDemoStep(stepNumber);
     setIsDemoTourActive(true);
 
     // Switch role-matched mock user
-    const matchedUser = MOCK_USERS.find((u) => u.role === step.role) || MOCK_USERS[0];
-    // Dispatch a custom event so AuthContext can pick it up without circular deps
-    window.dispatchEvent(new CustomEvent('demo:switchUser', { detail: matchedUser }));
+    const matchedUser =
+      MOCK_USERS.find((u) => u.role === step.role) || MOCK_USERS[0];
 
-    // Navigate to the correct URL
-    let path = VIEW_TO_PATH[step.targetView] || '/home';
+    // Dispatch custom event so AuthContext can pick it up
+    // without creating circular dependencies.
+    window.dispatchEvent(
+      new CustomEvent('demo:switchUser', {
+        detail: matchedUser,
+      })
+    );
+
+    // Start with the normal route for the demo step.
+    let path = VIEW_TO_PATH[step.targetView] || '/';
+
+    // Handle parameterized routes.
     if (step.targetId) {
       if (step.targetView === 'challenge-detail') {
-        path = `/explore/${step.targetId}`;
+        // Actual TanStack route:
+        // /challenge/$challengeId
+        path = `/challenge/${step.targetId}`;
       } else if (step.targetView === 'project-detail') {
+        // Actual TanStack route:
+        // /project/$projectId
         path = `/project/${step.targetId}`;
       }
     }
-    navigate(path);
-    showToast('info', `Demo Step ${step.stepNumber}/10: ${step.title}`, step.highlightAction);
+
+    // TanStack Router navigation.
+    //
+    // The path is generated dynamically, so we use a type assertion here.
+    navigate({
+      to: path as any,
+    });
+
+    showToast(
+      'info',
+      `Demo Step ${step.stepNumber}/10: ${step.title}`,
+      step.highlightAction
+    );
   };
 
   const nextDemoStep = () => {
-    if (currentDemoStep < JUDGE_DEMO_STEPS.length) goToDemoStep(currentDemoStep + 1);
-    else goToDemoStep(1);
+    if (currentDemoStep < JUDGE_DEMO_STEPS.length) {
+      goToDemoStep(currentDemoStep + 1);
+    } else {
+      goToDemoStep(1);
+    }
   };
 
   const prevDemoStep = () => {
-    if (currentDemoStep > 1) goToDemoStep(currentDemoStep - 1);
+    if (currentDemoStep > 1) {
+      goToDemoStep(currentDemoStep - 1);
+    }
   };
 
   return (
@@ -242,6 +317,10 @@ export const DemoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useDemo = () => {
   const context = useContext(DemoContext);
-  if (!context) throw new Error('useDemo must be used within a DemoProvider');
+
+  if (!context) {
+    throw new Error('useDemo must be used within a DemoProvider');
+  }
+
   return context;
 };
