@@ -3,7 +3,6 @@ import { useApp } from '../../context/AppContext';
 import { UserRole } from '../../types';
 import { JharkhandEmblem } from './JharkhandEmblem';
 import { ConcurrentMultiUserSwitcher } from '../auth/ConcurrentMultiUserSwitcher';
-import { SupabaseStatusBadge } from './SupabaseStatusBadge';
 import {
   Sparkles,
   Bell,
@@ -85,8 +84,7 @@ export const Header: React.FC = () => {
             Government of Jharkhand &bull; Department of Higher & Technical Education
           </span>
         </div>
-        <div className="flex items-center gap-3 text-xs">
-          <SupabaseStatusBadge />
+        <div className="flex items-center gap-4 text-xs">
           <button
             onClick={() => setIsDemoTourActive(!isDemoTourActive)}
             className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded font-semibold transition-all cursor-pointer ${

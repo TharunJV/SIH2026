@@ -42,7 +42,7 @@ class ProjectService {
         ms.status = 'Completed';
         ms.completedDate = new Date().toISOString().split('T')[0];
         if (feedback) ms.reviewerFeedback = feedback;
-        ms.deliverables?.forEach((d) => (d.verified = true));
+        ms.deliverables.forEach((d) => (d.verified = true));
       }
       proj.activityLog.unshift({
         timestamp: new Date().toLocaleString(),

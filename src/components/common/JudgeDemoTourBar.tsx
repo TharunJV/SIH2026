@@ -1,12 +1,14 @@
 import React from 'react';
-import { useDemo, JUDGE_DEMO_STEPS } from '../../context/DemoContext';
-import { useAuth } from '../../context/AuthContext';
+import { useApp, JUDGE_DEMO_STEPS } from '../../context/AppContext';
 import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  CheckCircle2,
   HelpCircle,
   X,
+  Play,
+  RotateCcw,
 } from 'lucide-react';
 
 export const JudgeDemoTourBar: React.FC = () => {
@@ -17,8 +19,8 @@ export const JudgeDemoTourBar: React.FC = () => {
     goToDemoStep,
     nextDemoStep,
     prevDemoStep,
-  } = useDemo();
-  const { currentUser } = useAuth();
+    currentUser,
+  } = useApp();
 
   if (!isDemoTourActive) {
     return (
@@ -37,28 +39,25 @@ export const JudgeDemoTourBar: React.FC = () => {
     );
   }
 
-  const activeStepObj =
-    JUDGE_DEMO_STEPS.find((s) => s.stepNumber === currentDemoStep) || JUDGE_DEMO_STEPS[0];
+  const activeStepObj = JUDGE_DEMO_STEPS.find((s) => s.stepNumber === currentDemoStep) || JUDGE_DEMO_STEPS[0];
   const progressPercent = Math.round((currentDemoStep / JUDGE_DEMO_STEPS.length) * 100);
 
   return (
-    <div className="bg-[#2c2b29] text-[#e6e2d8] border-b border-[#d89753]/30 shadow-sm relative z-0 transition-all">
+    <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 text-white border-b border-amber-500/30 shadow-lg sticky top-[57px] z-30 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         {/* Step Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           {/* Left badge & title */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[11px] font-bold shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[11px] font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>
-                Judge Tour &bull; Step {currentDemoStep} of {JUDGE_DEMO_STEPS.length}
-              </span>
+              <span>Judge Tour &bull; Step {currentDemoStep} of {JUDGE_DEMO_STEPS.length}</span>
             </span>
             <div className="flex items-center gap-1.5 font-bold text-xs sm:text-sm text-white tracking-tight">
               <span>{activeStepObj.title}</span>
             </div>
-            <span className="hidden md:inline-flex px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
-              Role: {currentUser.role.replace('_', ' ').toUpperCase()}
+            <span className="hidden md:inline-flex px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Role: {(currentUser?.role || 'citizen').replace(/_/g, ' ').toUpperCase()}
             </span>
           </div>
 
@@ -91,7 +90,7 @@ export const JudgeDemoTourBar: React.FC = () => {
               <button
                 onClick={prevDemoStep}
                 disabled={currentDemoStep === 1}
-                className="px-2 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-0.5"
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-0.5"
                 title="Previous step"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -100,17 +99,15 @@ export const JudgeDemoTourBar: React.FC = () => {
 
               <button
                 onClick={nextDemoStep}
-                className="px-3 h-8 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition-all"
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold flex items-center gap-1 shadow-sm transition-all"
               >
-                <span>
-                  {currentDemoStep === JUDGE_DEMO_STEPS.length ? 'Restart Tour' : 'Next Step'}
-                </span>
+                <span>{currentDemoStep === JUDGE_DEMO_STEPS.length ? 'Restart Tour' : 'Next Step'}</span>
                 <ChevronRight className="w-4 h-4 text-slate-950 font-black" />
               </button>
 
               <button
                 onClick={() => setIsDemoTourActive(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80"
                 title="Minimize Tour Bar"
               >
                 <X className="w-4 h-4" />
@@ -121,18 +118,15 @@ export const JudgeDemoTourBar: React.FC = () => {
 
         {/* Highlight Tip Banner */}
         <div className="mt-1.5 pt-1.5 border-t border-slate-800/80 flex items-start justify-between text-xs text-slate-300 gap-2">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-2">
             <span className="text-amber-400 font-bold shrink-0 text-[11px] flex items-center gap-1">
               <HelpCircle className="w-3.5 h-3.5" /> What to evaluate here:
             </span>
-            <span className="text-slate-200 text-[11px] sm:text-xs leading-snug">
-              {activeStepObj.description} &mdash;{' '}
-              <strong className="text-amber-300 font-semibold">
-                {activeStepObj.highlightAction}
-              </strong>
+            <span className="text-slate-200 text-[11px] sm:text-xs">
+              {activeStepObj.description} &mdash; <strong className="text-amber-300 font-semibold">{activeStepObj.highlightAction}</strong>
             </span>
           </div>
-          <span className="hidden sm:block text-[10px] text-slate-400 shrink-0 mt-0.5">
+          <span className="hidden sm:block text-[10px] text-slate-400 shrink-0">
             {progressPercent}% Journey Complete
           </span>
         </div>

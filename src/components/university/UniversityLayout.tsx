@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { JharkhandEmblem } from '../common/JharkhandEmblem';
 import { JudgeDemoTourBar } from '../common/JudgeDemoTourBar';
+import { EcosystemArchitectureModal } from '../common/EcosystemArchitectureModal';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -29,6 +30,13 @@ import {
   ChevronRight,
   ShieldCheck,
   Check,
+  Rocket,
+  FlaskConical,
+  HelpCircle,
+  Settings,
+  Handshake,
+  FileCheck,
+  Share2,
 } from 'lucide-react';
 
 interface AcademicNotif {
@@ -102,6 +110,8 @@ export const UniversityLayout: React.FC<UniversityLayoutProps> = ({ children }) 
     showToast,
     challenges,
     projects,
+    isEcosystemModalOpen,
+    setIsEcosystemModalOpen,
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -162,97 +172,152 @@ export const UniversityLayout: React.FC<UniversityLayoutProps> = ({ children }) 
     (c) => c.status === 'University Matching' || c.status === 'Validated' || c.status === 'Submitted'
   ).length;
 
-  const navItems = [
+  const isStudent = currentUser.role === 'student';
+
+  const universityNavItems = [
     {
-      group: 'Core Hub',
+      group: 'Core Navigation',
       items: [
         {
           id: 'university-dashboard' as const,
-          label: 'Institutional Dashboard',
+          label: 'Dashboard',
           icon: LayoutDashboard,
           badge: undefined,
         },
         {
           id: 'university-challenges' as const,
-          label: 'AI Matched Challenges',
-          icon: Sparkles,
-          badge: incomingChallengesCount > 0 ? `${incomingChallengesCount}` : undefined,
+          label: 'Challenge Discovery',
+          icon: Search,
+          badge: incomingChallengesCount > 0 ? `${incomingChallengesCount} Open` : undefined,
           badgeColor: 'bg-amber-500 text-slate-950',
         },
-      ],
-    },
-    {
-      group: 'R&D & Capstone Cohorts',
-      items: [
+        {
+          id: 'university-applications' as const,
+          label: 'My Applications',
+          icon: FileText,
+          badge: 'Under Review',
+          badgeColor: 'bg-blue-100 text-blue-800',
+        },
+        {
+          id: 'project-workspace' as const,
+          label: 'Active Projects',
+          icon: Rocket,
+          badge: `${projects.length} Active`,
+          badgeColor: 'bg-emerald-600 text-white',
+        },
         {
           id: 'university-teams' as const,
-          label: 'Multidisciplinary Teams',
+          label: 'Team & Members',
           icon: Users,
           badge: undefined,
         },
         {
-          id: 'university-proposals' as const,
-          label: 'Proposals & CSR Grants',
-          icon: FileText,
+          id: 'university-reports' as const,
+          label: 'Reports & Documents',
+          icon: FileCheck,
           badge: undefined,
         },
         {
-          id: 'project-workspace' as const,
-          label: '14-Stage Lifecycle & R&D',
-          icon: Layers,
-          badge: `${projects.length} Active`,
-          badgeColor: 'bg-indigo-600 text-white',
-        },
-      ],
-    },
-    {
-      group: 'State Ecosystem',
-      items: [
-        {
-          id: 'explore-challenges' as const,
-          label: 'Explore All Challenges',
-          icon: Compass,
-          badge: undefined,
-        },
-        {
-          id: 'map-view' as const,
-          label: 'Geospatial Problem Map',
-          icon: MapPin,
-          badge: undefined,
-        },
-        {
-          id: 'impact' as const,
-          label: 'State Impact & Analytics',
-          icon: TrendingUp,
-          badge: undefined,
-        },
-      ],
-    },
-    {
-      group: 'Institutional Settings',
-      items: [
-        {
-          id: 'university-notifications' as const,
-          label: 'Academic Notifications',
-          icon: Bell,
-          badge: unreadCount > 0 ? `${unreadCount}` : undefined,
-          badgeColor: 'bg-rose-500 text-white',
+          id: 'university-industry' as const,
+          label: 'Industry Collaboration',
+          icon: Handshake,
+          badge: 'Co-funding',
+          badgeColor: 'bg-amber-100 text-amber-900',
         },
         {
           id: 'university-profile' as const,
-          label: 'HEI Profile & Labs',
+          label: 'University Profile',
           icon: Building2,
           badge: undefined,
         },
         {
-          id: 'university-guidelines' as const,
-          label: 'R&D & Credit Norms',
-          icon: BookOpen,
+          id: 'university-notifications' as const,
+          label: 'Notifications',
+          icon: Bell,
+          badge: unreadCount > 0 ? `${unreadCount}` : undefined,
+          badgeColor: 'bg-rose-500 text-white',
+        },
+      ],
+    },
+    {
+      group: 'Support & Settings',
+      items: [
+        {
+          id: 'university-help' as const,
+          label: 'Help & Support',
+          icon: HelpCircle,
+          badge: undefined,
+        },
+        {
+          id: 'university-settings' as const,
+          label: 'Settings',
+          icon: Settings,
           badge: undefined,
         },
       ],
     },
   ];
+
+  const studentNavItems = [
+    {
+      group: 'Student Researcher Hub',
+      items: [
+        {
+          id: 'student-dashboard' as const,
+          label: 'Dashboard',
+          icon: LayoutDashboard,
+          badge: undefined,
+        },
+        {
+          id: 'student-projects' as const,
+          label: 'My Projects',
+          icon: Rocket,
+          badge: 'Capstone',
+          badgeColor: 'bg-blue-600 text-white',
+        },
+        {
+          id: 'student-experiments' as const,
+          label: 'Research & Experiments',
+          icon: FlaskConical,
+          badge: '18 Runs',
+          badgeColor: 'bg-indigo-100 text-indigo-800',
+        },
+        {
+          id: 'student-contributions' as const,
+          label: 'My Contributions',
+          icon: FileText,
+          badge: '12 ABC',
+          badgeColor: 'bg-emerald-100 text-emerald-800',
+        },
+        {
+          id: 'student-team' as const,
+          label: 'My Team',
+          icon: Users,
+          badge: undefined,
+        },
+        {
+          id: 'student-notifications' as const,
+          label: 'Notifications',
+          icon: Bell,
+          badge: unreadCount > 0 ? `${unreadCount}` : undefined,
+          badgeColor: 'bg-rose-500 text-white',
+        },
+      ],
+    },
+    {
+      group: 'Preferences',
+      items: [
+        {
+          id: 'student-settings' as const,
+          label: 'Settings',
+          icon: Settings,
+          badge: undefined,
+        },
+      ],
+    },
+  ];
+
+  const navItems = isStudent ? studentNavItems : universityNavItems;
 
   const handleLogout = () => {
     showToast('info', 'Logged Out', 'You have securely logged out of the Higher Education Institution Portal.');
@@ -603,6 +668,27 @@ export const UniversityLayout: React.FC<UniversityLayoutProps> = ({ children }) 
               </div>
             ))}
 
+            {/* Ecosystem Architecture Trigger Card */}
+            <div className="pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsEcosystemModalOpen(true)}
+                className="w-full text-left p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 hover:border-amber-300 transition-all cursor-pointer group shadow-2xs"
+              >
+                <div className="flex items-center gap-2 text-amber-900 font-bold text-xs mb-1">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                  <span>4-Pillar Platform Engine</span>
+                </div>
+                <p className="text-[10px] text-amber-800 leading-tight">
+                  Discover &rarr; Express Interest &rarr; Official Assignment &rarr; Workspace Lifecycle
+                </p>
+                <span className="text-[10px] font-bold text-amber-900 group-hover:underline inline-flex items-center gap-1 mt-1.5">
+                  <span>View Full System Architecture</span>
+                  <ChevronRight className="w-3 h-3" />
+                </span>
+              </button>
+            </div>
+
             {/* Logout Divider */}
             <div className="pt-2 border-t border-slate-100">
               <button
@@ -800,6 +886,12 @@ export const UniversityLayout: React.FC<UniversityLayoutProps> = ({ children }) 
           <span>Profile</span>
         </button>
       </nav>
+
+      {/* Global Ecosystem Architecture & Knowledge Layer Modal */}
+      <EcosystemArchitectureModal
+        isOpen={isEcosystemModalOpen}
+        onClose={() => setIsEcosystemModalOpen(false)}
+      />
     </div>
   );
 };

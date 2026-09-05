@@ -56,7 +56,7 @@ export const SIX_ROLES: RoleConfig[] = [
       chip: 'bg-emerald-100 text-emerald-800 border-emerald-300',
       iconBg: 'bg-emerald-600 text-white',
     },
-    targetView: 'citizen-login',
+    targetView: 'citizen-dashboard',
   },
   {
     id: 'university',
@@ -263,17 +263,13 @@ export const RoleCarousel: React.FC<RoleCarouselProps> = ({
       return;
     }
 
-    if (roleConfig.id === 'citizen' || roleConfig.role === 'citizen' || roleConfig.name === 'CITIZEN / COMMUNITY') {
-      setCurrentView('citizen-login');
-    } else {
-      switchRole(roleConfig.role);
-      showToast(
-        'success',
-        `Role Selected: ${roleConfig.name}`,
-        `Entering ${roleConfig.name} dashboard environment.`
-      );
-      setCurrentView(roleConfig.targetView as any);
-    }
+    switchRole(roleConfig.role);
+    showToast(
+      'success',
+      `Role Selected: ${roleConfig.name}`,
+      `Entering ${roleConfig.name} dashboard environment.`
+    );
+    setCurrentView(roleConfig.targetView as any);
   };
 
   return (

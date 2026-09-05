@@ -1,293 +1,438 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ProjectLifecycle } from '../../types';
+import { IndustryExpressInterestModal } from './IndustryExpressInterestModal';
 import {
-  Briefcase,
-  DollarSign,
+  Building2,
+  Handshake,
+  TrendingUp,
   Award,
   Sparkles,
-  Building2,
-  CheckCircle2,
-  Users,
   Layers,
-  ArrowRight,
-  TrendingUp,
+  ChevronRight,
   ShieldCheck,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  Cpu,
+  MapPin,
+  ArrowUpRight,
+  Search,
+  Plus,
 } from 'lucide-react';
 
 export const IndustryDashboard: React.FC = () => {
   const {
-    currentUser,
+    activeIndustry,
+    currentIndustryMember,
     projects,
-    challenges,
-    navigateToProject,
-    navigateToChallenge,
+    collaborations,
+    setSelectedProjectId,
+    setSelectedCollaborationId,
     setCurrentView,
-    showToast,
   } = useApp();
 
-  const [selectedFundingProject, setSelectedFundingProject] = useState<ProjectLifecycle | any | null>(null);
-  const [pledgeAmount, setPledgeAmount] = useState<number>(350000);
-  const [csrFocus, setCsrFocus] = useState('Rural Water Security & Tribal Health');
+  const [selectedExpressProject, setSelectedExpressProject] = useState<ProjectLifecycle | null>(null);
 
-  const handlePledgeCSR = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedFundingProject) return;
+  const activeCollabs = collaborations.filter(
+    (c) => c.status === 'Active' || c.status === 'Accepted'
+  );
+  const pendingRequests = collaborations.filter(
+    (c) => c.status === 'Pending' || c.status === 'Under Review'
+  );
 
-    if (selectedFundingProject.industryPartners) {
-      selectedFundingProject.industryPartners.push({
-        partnerId: 'partner-ind-01',
-        partnerName: currentUser.organization || 'Tata Steel CSR Foundation',
-        contributionType: 'Funding',
-        fundingAmount: pledgeAmount,
-        mentorName: 'Dedicated Senior Materials & Solar Engineer',
-      });
-    }
+  // Recommended matching projects
+  const recommendedProjects = projects.slice(0, 3);
 
-    const projectTitle =
-      selectedFundingProject.proposal?.title ||
-      selectedFundingProject.challengeTitle ||
-      selectedFundingProject.title ||
-      'Selected Innovation Project';
+  const handleOpenDetail = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setCurrentView('industry-project-detail');
+  };
 
-    showToast(
-      'success',
-      'CSR Grant Committed',
-      `Committed ₹${(pledgeAmount || 0).toLocaleString()} to ${projectTitle}.`
-    );
-    setSelectedFundingProject(null);
+  const handleOpenWorkspace = (collabId: string, projectId: string) => {
+    setSelectedCollaborationId(collabId);
+    setSelectedProjectId(projectId);
+    setCurrentView('industry-collaboration-workspace');
   };
 
   return (
-    <div className="space-y-6">
-      {/* Industry Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 border border-purple-500/30 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-purple-800/80 border border-purple-400/40 flex items-center justify-center text-amber-300 text-2xl font-black shrink-0 shadow-lg">
-            <Briefcase className="w-8 h-8" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-400/30">
-                Industry, CSR & MSME Partnership Hub
+    <div className="space-y-8">
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div className="absolute -right-12 -top-12 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                Industry Portal
               </span>
-              <span className="text-xs text-slate-400 font-mono">Jharkhand CSR Portal Integrated</span>
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-slate-200">
+                {(currentIndustryMember?.role || currentIndustryMember?.member_role || 'org_admin').replace('_', ' ').toUpperCase()}
+              </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1">
-              {currentUser.organization || 'Tata Steel Sustainability & CSR Foundation'}
-            </h2>
-            <p className="text-xs text-slate-300 mt-1 max-w-xl">
-              Co-funding university R&D prototypes, providing industrial testing testbeds, and commercializing indigenous solutions.
-            </p>
+
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              Good Morning, {currentIndustryMember?.name || 'Partner'}
+            </h1>
+
+            <div className="flex flex-wrap items-center gap-3 text-xs text-emerald-200/90 pt-1">
+              <span className="flex items-center gap-1.5 font-medium">
+                <Building2 className="w-4 h-4 text-emerald-400" />
+                Organization: <strong>{activeIndustry?.organization_name || 'Tata Steel Innovation Centre'}</strong>
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-emerald-400" />
+                HQ: {activeIndustry?.district || 'East Singhbhum'}, {activeIndustry?.state || 'Jharkhand'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => setCurrentView('industry-discovery')}
+              className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold rounded-xl shadow-md flex items-center gap-2 transition"
+            >
+              <Search className="w-4 h-4" />
+              Discover Academic Projects
+            </button>
           </div>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2">
+      {/* Summary KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Card 1: Relevant Projects */}
+        <div
+          onClick={() => setCurrentView('industry-discovery')}
+          className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-emerald-400 transition cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Relevant Projects
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-105 transition">
+              <Layers className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900">{projects.length}</span>
+            <span className="text-xs text-emerald-700 font-bold">In State Registry</span>
+          </div>
+          <p className="mt-1 text-[11px] text-slate-500">
+            Across 12 accredited state technical institutes
+          </p>
+        </div>
+
+        {/* Card 2: Collaboration Requests */}
+        <div
+          onClick={() => setCurrentView('industry-requests')}
+          className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-emerald-400 transition cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Partnership Requests
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition">
+              <Clock className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900">{collaborations.length}</span>
+            <span className="text-xs text-amber-700 font-bold">
+              {pendingRequests.length} Pending Review
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] text-slate-500">
+            Institutional proposals & agreements
+          </p>
+        </div>
+
+        {/* Card 3: Active Collaborations */}
+        <div
+          onClick={() => setCurrentView('industry-collaborations')}
+          className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-emerald-400 transition cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Active Co-Dev Workspaces
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition">
+              <Handshake className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900">{activeCollabs.length}</span>
+            <span className="text-xs text-emerald-700 font-bold">Active Partnerships</span>
+          </div>
+          <p className="mt-1 text-[11px] text-slate-500">
+            Joint student-industry engineering labs
+          </p>
+        </div>
+
+        {/* Card 4: CSR Grant Deployments */}
+        <div
+          onClick={() => setCurrentView('industry-funding')}
+          className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-emerald-400 transition cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Supported Projects
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition">
+              <Award className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900">
+              ₹{(250000).toLocaleString()}
+            </span>
+            <span className="text-xs text-purple-700 font-bold">Committed CSR</span>
+          </div>
+          <p className="mt-1 text-[11px] text-slate-500">
+            Section 135 Schedule VII Compliant
+          </p>
+        </div>
+      </div>
+
+      {/* Recommended Opportunities Matching Capabilities */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              Recommended Innovation Opportunities
+            </h2>
+            <p className="text-xs text-slate-500">
+              Projects matched automatically with {activeIndustry?.organization_name || 'Industry'}'s registered testing and manufacturing matrix.
+            </p>
+          </div>
+
           <button
-            onClick={() => setCurrentView('explore-challenges')}
-            className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+            onClick={() => setCurrentView('industry-discovery')}
+            className="text-xs font-bold text-emerald-700 hover:text-emerald-900 flex items-center gap-1"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Discover Unfunded Challenges</span>
+            Explore All Catalog ({projects.length})
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
-      </div>
 
-      {/* KPI Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: 'CSR Capital Committed', value: '₹1.85 Cr', icon: DollarSign, color: 'text-purple-800', bg: 'bg-purple-50/70' },
-          { label: 'Active Sponsored Pilots', value: '12 Deployments', icon: Layers, color: 'text-indigo-800', bg: 'bg-indigo-50/70' },
-          { label: 'Technical Mentors Assigned', value: '28 Engineers', icon: Users, color: 'text-emerald-800', bg: 'bg-emerald-50/70' },
-          { label: 'Commercialized Solutions', value: '4 Startups', icon: Award, color: 'text-teal-800', bg: 'bg-teal-50/70' },
-        ].map((item, idx) => (
-          <div key={idx} className={`${item.bg} p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between`}>
-            <div>
-              <span className="text-xs font-bold text-slate-600">{item.label}</span>
-              <span className={`text-xl font-black ${item.color} mt-1 block`}>{item.value}</span>
-            </div>
-            <item.icon className={`w-8 h-8 opacity-30 ${item.color}`} />
-          </div>
-        ))}
-      </div>
-
-      {/* Projects Open for Industry / CSR Matching Grants */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div>
-            <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider">
-              University R&D Projects Seeking CSR & Industry Testbeds
-            </h3>
-            <p className="text-xs text-slate-500">
-              Vetted by Jharkhand State Higher Education Council (JSHEC) & Department of Higher & Technical Education
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {projects.map((p) => {
-            const anyP = p as any;
-            const title = p.proposal?.title || p.challengeTitle || anyP.title || 'Multidisciplinary Solution';
-            const summary =
-              p.proposal?.proposedSolution ||
-              p.proposal?.problemUnderstanding ||
-              anyP.executiveSummary ||
-              'Innovative academic engineering prototype targeted at grassroots community deployment.';
-            const trl = p.prototypeStatus?.trlLevel
-              ? `TRL ${p.prototypeStatus.trlLevel}`
-              : anyP.trlLevel || 'TRL 5';
-            const budget =
-              p.proposal?.totalBudget ||
-              p.proposal?.totalBudgetINR ||
-              anyP.totalBudgetINR ||
-              480000;
-            const partner = p.industryPartners?.[0] || anyP.csrFunding;
-            const sponsorName = partner?.partnerName || partner?.sponsorName;
-            const hasSponsor = !!sponsorName;
-
-            return (
-              <div
-                key={p.id}
-                className="p-5 rounded-2xl border border-slate-200 hover:border-purple-400 bg-slate-50/50 hover:bg-white transition-all space-y-4"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-bold text-slate-900 block line-clamp-1">{title}</span>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      Lead HEI: <strong>{p.universityName}</strong>
-                    </span>
-                  </div>
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
-                      hasSponsor ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                    }`}
-                  >
-                    {hasSponsor ? 'Funded' : 'Seeking Sponsor'}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {recommendedProjects.map((project) => (
+            <div
+              key={project.id}
+              className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-400/80 hover:shadow-md transition flex flex-col justify-between p-5 space-y-4"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800">
+                    {project.currentStage || 'Prototype'} Stage
+                  </span>
+                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {project.district || 'Khunti'}
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{summary}</p>
-
-                {/* Tech & Budget info */}
-                <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">TRL Readiness:</span>
-                    <strong className="text-indigo-800">{trl}</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Pilot Budget Required:</span>
-                    <strong className="text-slate-900">₹{(budget || 0).toLocaleString()}</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Current CSR Partner:</span>
-                    <span className="font-semibold text-purple-800">
-                      {sponsorName || 'Open for Co-Sponsorship'}
-                    </span>
+                <div>
+                  <h3
+                    onClick={() => handleOpenDetail(project.id)}
+                    className="text-sm font-bold text-slate-900 hover:text-emerald-700 cursor-pointer transition leading-snug line-clamp-2"
+                  >
+                    {project.title || project.proposal?.title || project.challengeTitle}
+                  </h3>
+                  <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                    <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+                    <span className="truncate">{project.universityName || project.university?.name || 'Partner University'}</span>
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-2 pt-2">
-                  <button
-                    onClick={() => setSelectedFundingProject(p)}
-                    className="flex-1 py-2.5 bg-purple-700 hover:bg-purple-800 text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5"
-                  >
-                    <DollarSign className="w-3.5 h-3.5" />
-                    <span>Pledge CSR Grant / Mentorship</span>
-                  </button>
+                <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                  {project.summary || project.proposal?.executiveSummary || project.proposal?.proposedSolution || 'Societal challenge solving innovation in Jharkhand.'}
+                </p>
 
-                  <button
-                    onClick={() => navigateToProject(p.id)}
-                    className="px-3.5 py-2.5 border border-slate-300 hover:bg-slate-100 rounded-xl text-xs font-bold text-slate-700"
-                  >
-                    14-Stage Lifecycle &rarr;
-                  </button>
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 text-[10px] font-semibold">
+                    Tooling & Fab Needed
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-semibold">
+                    Pressure Testing Rig
+                  </span>
                 </div>
               </div>
-            );
-          })}
+
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                <button
+                  onClick={() => handleOpenDetail(project.id)}
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900"
+                >
+                  View Details
+                </button>
+                <button
+                  onClick={() => setSelectedExpressProject(project)}
+                  disabled={!currentIndustryMember?.permissions?.canExpressCollaboration}
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1 transition"
+                >
+                  <Handshake className="w-3.5 h-3.5" />
+                  Express Interest
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Pledge Modal */}
-      {selectedFundingProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
-            <div className="p-5 bg-gradient-to-r from-slate-900 to-purple-950 text-white flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-amber-400" />
-                <h3 className="font-bold text-sm">Pledge CSR Sponsorship & Mentorship</h3>
-              </div>
+      {/* Active Collaborations & Health Stream */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols: Active Co-Dev Workspaces */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-slate-900">
+              Active Co-Development Workspaces
+            </h3>
+            <button
+              onClick={() => setCurrentView('industry-collaborations')}
+              className="text-xs font-bold text-emerald-700 hover:text-emerald-900 flex items-center gap-1"
+            >
+              View Workspaces
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {activeCollabs.length === 0 ? (
+            <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 text-xs text-slate-500">
+              No active collaborations currently in progress. Browse projects to partner.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {activeCollabs.map((collab) => (
+                <div
+                  key={collab.id}
+                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-emerald-400 transition space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
+                          Active Co-Development
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          {collab.university_name}
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900">
+                        {collab.project_title}
+                      </h4>
+                    </div>
+
+                    <button
+                      onClick={() => handleOpenWorkspace(collab.id, collab.project_id)}
+                      className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 shrink-0"
+                    >
+                      Workspace
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="space-y-1 pt-1">
+                    <div className="flex justify-between text-xs text-slate-600 font-medium">
+                      <span>Joint Execution Progress</span>
+                      <span className="font-bold text-emerald-700">{collab.progress_percent}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500 rounded-full"
+                        style={{ width: `${collab.progress_percent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1">
+                    <span>
+                      Contributions logged: <strong>{collab.contributions?.length || 0}</strong>
+                    </span>
+                    <span>
+                      Lead: <strong>{collab.contact_person}</strong>
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right 1 Col: Quick Action Launchpads & Verification */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+            <h3 className="text-sm font-bold text-slate-900">Quick Launchpads</h3>
+
+            <div className="space-y-2 text-xs">
               <button
-                onClick={() => setSelectedFundingProject(null)}
-                className="text-slate-400 hover:text-white"
+                onClick={() => setCurrentView('industry-discovery')}
+                className="w-full p-3 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 text-left font-bold text-slate-800 flex items-center justify-between transition"
               >
-                ✕
+                <div className="flex items-center gap-2.5">
+                  <Search className="w-4 h-4 text-emerald-600" />
+                  <span>Discover Research Projects</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+
+              <button
+                onClick={() => setCurrentView('industry-requests')}
+                className="w-full p-3 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 text-left font-bold text-slate-800 flex items-center justify-between transition"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Handshake className="w-4 h-4 text-emerald-600" />
+                  <span>Track Partnership Proposals</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+
+              <button
+                onClick={() => setCurrentView('industry-funding')}
+                className="w-full p-3 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 text-left font-bold text-slate-800 flex items-center justify-between transition"
+              >
+                <div className="flex items-center gap-2.5">
+                  <DollarSign className="w-4 h-4 text-emerald-600" />
+                  <span>Allocate CSR Grants</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+
+              <button
+                onClick={() => setCurrentView('industry-reports')}
+                className="w-full p-3 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 text-left font-bold text-slate-800 flex items-center justify-between transition"
+              >
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Review Authorized Reports</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </button>
             </div>
+          </div>
 
-            <form onSubmit={handlePledgeCSR} className="p-5 sm:p-6 space-y-4">
-              <div className="p-3 bg-purple-50 rounded-xl border border-purple-200 text-xs text-purple-950">
-                <strong>Project:</strong>{' '}
-                {selectedFundingProject.proposal?.title ||
-                  selectedFundingProject.challengeTitle ||
-                  selectedFundingProject.title ||
-                  'Innovation Project'}{' '}
-                ({selectedFundingProject.universityName})
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-900 mb-1">
-                  CSR Grant Allocation (INR) <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={50000}
-                  step={10000}
-                  value={pledgeAmount}
-                  onChange={(e) => setPledgeAmount(Number(e.target.value))}
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-900 mb-1">
-                  CSR Thematic Priority Domain
-                </label>
-                <input
-                  type="text"
-                  value={csrFocus}
-                  onChange={(e) => setCsrFocus(e.target.value)}
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>
-                  Eligible for 100% Jharkhand State CSR Compliance Credit under Section 135 & JSHEC Innovation Guidelines.
-                </span>
-              </div>
-
-              <div className="pt-2 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedFundingProject(null)}
-                  className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-purple-700 hover:bg-purple-800 text-white rounded-xl text-xs font-bold shadow-md"
-                >
-                  Confirm CSR Commitment
-                </button>
-              </div>
-            </form>
+          <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+              <Building2 className="w-4 h-4" />
+              State Higher Education Council
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Every partnership expression is logged under the official Department of Higher Education public-private co-development charter with zero licensing ambiguity.
+            </p>
           </div>
         </div>
+      </div>
+
+      {/* Express Interest Modal */}
+      {selectedExpressProject && (
+        <IndustryExpressInterestModal
+          project={selectedExpressProject}
+          onClose={() => setSelectedExpressProject(null)}
+        />
       )}
     </div>
   );

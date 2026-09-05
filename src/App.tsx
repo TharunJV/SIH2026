@@ -32,6 +32,19 @@ import { UniversityProposalsPage } from './components/university/UniversityPropo
 import { UniversityNotificationsPage } from './components/university/UniversityNotificationsPage';
 import { UniversityProfilePage } from './components/university/UniversityProfilePage';
 import { UniversityGuidelinesPage } from './components/university/UniversityGuidelinesPage';
+import { UniversityApplicationsPage } from './components/university/UniversityApplicationsPage';
+import { UniversityReportsPage } from './components/university/UniversityReportsPage';
+import { UniversityIndustryPage } from './components/university/UniversityIndustryPage';
+import { UniversityHelpPage } from './components/university/UniversityHelpPage';
+import { UniversitySettingsPage } from './components/university/UniversitySettingsPage';
+
+// Student Dedicated Pages
+import { StudentDashboard } from './components/student/StudentDashboard';
+import { StudentProjectsPage } from './components/student/StudentProjectsPage';
+import { StudentExperimentsPage } from './components/student/StudentExperimentsPage';
+import { StudentContributionsPage } from './components/student/StudentContributionsPage';
+import { StudentTeamPage } from './components/student/StudentTeamPage';
+import { StudentSettingsPage } from './components/student/StudentSettingsPage';
 
 // Other Roles & Dashboards
 import { ExploreChallengesPage } from './components/public/ExploreChallengesPage';
@@ -39,7 +52,9 @@ import { UniversitiesPage } from './components/public/UniversitiesPage';
 import { IndustryPage } from './components/public/IndustryPage';
 import { HowItWorksPage } from './components/public/HowItWorksPage';
 import { IndustryDashboard } from './components/industry/IndustryDashboard';
+import { IndustryLayout } from './components/industry/IndustryLayout';
 import { GovernmentDashboard } from './components/government/GovernmentDashboard';
+import { GovernmentLayout } from './components/government/GovernmentLayout';
 import { ProjectWorkspace } from './components/project/ProjectWorkspace';
 import { JharkhandMap } from './components/map/JharkhandMap';
 import { PublicImpactDashboard } from './components/impact/PublicImpactDashboard';
@@ -55,9 +70,35 @@ const AppContent: React.FC = () => {
     currentView === 'signup';
 
   // Role Checks
-  const isCitizenRole = currentRole === 'citizen' || currentRole === 'community_org' || currentRole === 'pri_ulb';
+  const isIndustryRole =
+    currentRole === 'industry_msme' ||
+    currentRole === 'csr_org' ||
+    currentRole === 'research_institute' ||
+    currentView.startsWith('industry-');
+
   const isUniversityRole =
-    currentRole === 'university_admin' || currentRole === 'faculty_mentor' || currentRole === 'student';
+    !isIndustryRole &&
+    (currentRole === 'university_admin' ||
+      currentRole === 'faculty_mentor' ||
+      currentRole === 'student' ||
+      currentView.startsWith('university-') ||
+      currentView.startsWith('student-'));
+
+  const isCitizenRole =
+    !isIndustryRole &&
+    !isUniversityRole &&
+    (currentRole === 'citizen' ||
+      currentRole === 'community_org' ||
+      currentRole === 'pri_ulb' ||
+      currentView.startsWith('citizen-'));
+
+  const isGovernmentRole =
+    !isIndustryRole &&
+    !isUniversityRole &&
+    !isCitizenRole &&
+    (currentRole === 'govt_department' ||
+      currentRole === 'platform_admin' ||
+      currentView.startsWith('government-'));
 
   // Render Citizen Specific Views inside CitizenLayout
   const renderCitizenView = () => {
@@ -99,6 +140,8 @@ const AppContent: React.FC = () => {
         return <UniversityDashboard />;
       case 'university-challenges':
         return <UniversityChallengesPage />;
+      case 'university-applications':
+        return <UniversityApplicationsPage />;
       case 'university-teams':
         return <UniversityTeamsPage />;
       case 'university-proposals':
@@ -108,17 +151,39 @@ const AppContent: React.FC = () => {
       case 'university-projects':
       case 'university-milestones':
         return <ProjectWorkspace />;
+      case 'university-reports':
+        return <UniversityReportsPage />;
+      case 'university-industry':
+        return <UniversityIndustryPage />;
       case 'challenge-detail':
       case 'citizen-challenge-detail':
         return <CitizenChallengeDetail />;
       case 'explore-challenges':
         return <ExploreChallengesPage />;
       case 'university-notifications':
+      case 'student-notifications':
         return <UniversityNotificationsPage />;
       case 'university-profile':
         return <UniversityProfilePage />;
       case 'university-guidelines':
         return <UniversityGuidelinesPage />;
+      case 'university-help':
+        return <UniversityHelpPage />;
+      case 'university-settings':
+        return <UniversitySettingsPage />;
+      // Student Specific Views
+      case 'student-dashboard':
+        return <StudentDashboard />;
+      case 'student-projects':
+        return <StudentProjectsPage />;
+      case 'student-experiments':
+        return <StudentExperimentsPage />;
+      case 'student-contributions':
+        return <StudentContributionsPage />;
+      case 'student-team':
+        return <StudentTeamPage />;
+      case 'student-settings':
+        return <StudentSettingsPage />;
       case 'map-view':
         return <JharkhandMap />;
       case 'impact':
@@ -126,7 +191,7 @@ const AppContent: React.FC = () => {
       case 'how-it-works':
         return <HowItWorksPage />;
       default:
-        return <UniversityDashboard />;
+        return currentRole === 'student' ? <StudentDashboard /> : <UniversityDashboard />;
     }
   };
 
@@ -143,6 +208,14 @@ const AppContent: React.FC = () => {
         return <CitizenDashboard />;
       case 'university-dashboard':
         return <UniversityDashboard />;
+      case 'student-dashboard':
+        return <StudentDashboard />;
+      case 'university-applications':
+        return <UniversityApplicationsPage />;
+      case 'university-reports':
+        return <UniversityReportsPage />;
+      case 'university-industry':
+        return <UniversityIndustryPage />;
       case 'industry-dashboard':
         return <IndustryDashboard />;
       case 'government-dashboard':
@@ -206,7 +279,29 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // 3. Regular Portal Layout for Other Roles (University, Industry, Government, Public)
+  // 4. Dedicated Standalone Industry Experience with corporate sidebar, role switcher, and workspaces
+  if (isIndustryRole) {
+    return (
+      <>
+        <IndustryLayout />
+        <ToastContainer />
+        <AuthModal />
+      </>
+    );
+  }
+
+  // 5. Dedicated Standalone Government Experience with official state header, access level switcher, and governance sidebar
+  if (isGovernmentRole) {
+    return (
+      <>
+        <GovernmentLayout />
+        <ToastContainer />
+        <AuthModal />
+      </>
+    );
+  }
+
+  // 6. Regular Portal Layout for Other Roles (Public)
   return (
     <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 font-sans antialiased selection:bg-emerald-500 selection:text-white">
       {/* Header */}

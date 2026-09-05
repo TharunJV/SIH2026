@@ -173,7 +173,8 @@ export const CitizenNotificationsPage: React.FC = () => {
               key={n.id}
               onClick={() => {
                 markNotificationAsRead(n.id);
-                if (n.targetId) navigateToChallenge(n.targetId);
+                const target = (n as any).targetId || (n as any).relatedId;
+                if (target) navigateToChallenge(target);
               }}
               className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 ${
                 !n.read
@@ -191,7 +192,7 @@ export const CitizenNotificationsPage: React.FC = () => {
                     {n.title}
                   </h3>
                   <span className="text-[10px] text-slate-600 shrink-0 font-medium">
-                    {n.date}
+                    {(n as any).date || (n as any).timestamp}
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">

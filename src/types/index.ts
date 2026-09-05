@@ -128,6 +128,7 @@ export interface Challenge {
   id: string;
   title: string;
   description: string;
+  problemSummary?: string;
   category: ChallengeCategory;
   subCategory?: string;
   district: string;
@@ -172,22 +173,26 @@ export interface Challenge {
   latestUpdate?: string;
   isReopened?: boolean;
   reopenedReason?: string;
+  openForSolutions?: boolean;
+  visibleToUniversities?: string[];
+  expressionsOfInterest?: ExpressionOfInterest[];
+  attemptsHistory?: ChallengeAttempt[];
+  officialAssignment?: {
+    assignedToUniversity: string;
+    assignedDate: string;
+    assignedBy: string;
+    attemptNumber: number;
+    projectId?: string;
+    status: 'Active Workspace' | 'Completed' | 'Halted';
+  };
   previousAttempts?: {
     attemptNumber: number;
     universityName: string;
-    facultyLead?: string;
-    studentCohort?: string;
-    attemptPeriod?: string;
-    outcome: 'Unsuccessful' | 'Partially Resolved' | 'Successful' | 'In Progress';
+    outcome: 'Unsuccessful' | 'Successful' | 'In Progress';
     completedDate: string;
     publicSummary: string;
-    bottleneckAnalysis?: string;
-    labDataPreserved?: string;
-    keyLessonsForNextUniversity: string;
     publicReportUrl?: string;
-    trlAchieved?: number;
   }[];
-  currentAttemptNumber?: number;
   publicOutcome?: {
     title: string;
     summary: string;
@@ -200,27 +205,40 @@ export interface Challenge {
   };
 }
 
-export interface UniversityApplication {
+export interface ExpressionOfInterest {
   id: string;
   challengeId: string;
-  challengeTitle: string;
-  district: string;
-  category: ChallengeCategory;
   universityId: string;
   universityName: string;
-  facultyMentor: string;
+  facultyLead: string;
   department: string;
-  studentCohortSize: number;
   initialApproach: string;
-  targetTRL: number;
-  estimatedTimelineMonths: number;
-  resourcesRequested: string;
-  status: 'Under Review' | 'Officially Assigned' | 'Shortlisted' | 'Archived';
-  submittedDate: string;
-  reviewedDate?: string;
-  reviewerNotes?: string;
-  attemptNumber?: number;
-  officialAssignmentLetterUrl?: string;
+  targetTimeline: string;
+  resourcesNeeded: string;
+  studentCohortSize: number;
+  submittedAt: string;
+  status: 'Under Review' | 'Officially Assigned' | 'Declined';
+  governmentReviewNotes?: string;
+  assignedAttemptNumber?: number;
+}
+
+export interface ChallengeAttempt {
+  attemptNumber: number;
+  universityId: string;
+  universityName: string;
+  department: string;
+  approach: string;
+  outcome: 'FAILED' | 'HALTED' | 'IN_PROGRESS' | 'SUCCESS';
+  startDate: string;
+  endDate?: string;
+  failureReason?: string;
+  publicLessonsLearned: string;
+  preservedArtifacts: {
+    title: string;
+    type: 'dataset' | 'cad' | 'report' | 'sensor_log';
+    size: string;
+  }[];
+  howNextAttemptLeveraged?: string;
 }
 
 export interface TeamMember {
@@ -396,10 +414,29 @@ export interface ProjectLifecycle {
   id: string;
   challengeId: string;
   challengeTitle: string;
+  title?: string;
+  summary?: string;
+  currentStage?: string;
   district: string;
   category: ChallengeCategory;
   universityId: string;
   universityName: string;
+  university?: {
+    id?: string;
+    name: string;
+    location?: string;
+  };
+  budget?: {
+    totalBudget?: number;
+    allowCorporateSponsorship?: boolean;
+    csrRequiredAmount?: number;
+    approvedBudget?: number;
+    estimatedTotal?: number;
+  };
+  stage?: string;
+  description?: string;
+  leadFaculty?: string;
+  industryPartner?: string;
   team: MultidisciplinaryTeam;
   proposal: SolutionProposal;
   industryPartners: {
@@ -433,13 +470,13 @@ export interface ProjectLifecycle {
     isStartupIncubated: boolean;
     startupName?: string;
   };
-  impactScorecard: {
+  impactScorecard?: {
     livesImpacted: number;
     costReductionPercent: number;
     environmentalSavings: string;
     sdgGoals: string[];
   };
-  activityLog: {
+  activityLog?: {
     timestamp: string;
     actor: string;
     role: string;
@@ -454,9 +491,11 @@ export interface NotificationItem {
   message: string;
   type: 'Challenge' | 'Project' | 'Collaboration' | 'Approval' | 'System';
   timestamp: string;
+  date?: string;
   read: boolean;
   actionUrl?: string;
   relatedId?: string;
+  targetId?: string;
 }
 
 export interface ChatMessage {
@@ -501,3 +540,5 @@ export interface DistrictMetric {
 }
 
 export * from './auth';
+export * from './industry';
+export * from './government';
