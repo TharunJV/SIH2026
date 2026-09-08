@@ -96,6 +96,113 @@ const CITIZEN_CATEGORIES = [
   { id: 'Other', label: 'Other', icon: '📌', desc: 'Any other general community issue' },
 ];
 
+// ─── VideoEvidenceCard ──────────────────────────────────────────────────────
+// Renders a single recorded/uploaded video inside the evidence grid.
+// Preview state: autoplay, muted, loop (browser-safe).
+// After user click: full controls, unmuted, plays with sound — stays in card.
+const VideoEvidenceCard: React.FC<{
+  video: AttachedFile;
+  isInteractive: boolean;
+  onActivate: () => void;
+  onRemove: () => void;
+}> = ({ video, isInteractive, onActivate, onRemove }) => {
+  const cardVideoRef = useRef<HTMLVideoElement>(null);
+
+  // Autoplay as muted preview whenever the card first mounts or src changes
+  useEffect(() => {
+    const el = cardVideoRef.current;
+    if (!el || !video.url) return;
+    el.src = video.url;
+    el.muted = true;
+    el.loop = true;
+    el.playsInline = true;
+    el.load();
+    const playPromise = el.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Autoplay blocked — still fine, user can click to play
+      });
+    }
+  }, [video.url]);
+
+  // When user activates interactive mode: unmute and show controls
+  useEffect(() => {
+    const el = cardVideoRef.current;
+    if (!el) return;
+    if (isInteractive) {
+      el.muted = false;
+      el.loop = false;
+      const playPromise = el.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
+    }
+  }, [isInteractive]);
+
+  const handleClick = () => {
+    if (!isInteractive) {
+      onActivate();
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+      <div
+        className={`relative w-full aspect-[4/3] bg-slate-900 overflow-hidden ${!isInteractive ? 'cursor-pointer' : ''}`}
+        onClick={handleClick}
+      >
+        <video
+          ref={cardVideoRef}
+          className="w-full h-full object-cover"
+          playsInline
+          muted
+          loop
+          preload="auto"
+          {...(isInteractive ? { controls: true } : {})}
+        />
+
+        {/* Video badge — always visible */}
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/70 backdrop-blur-sm text-[11px] font-bold text-white shadow pointer-events-none">
+          <Video className="w-3.5 h-3.5 text-amber-400" />
+          <span>Video</span>
+        </div>
+
+        {/* Click-to-play hint overlay — only shown in preview (muted) state */}
+        {!isInteractive && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-black/40 rounded-full p-3 backdrop-blur-sm">
+              <svg className="w-8 h-8 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+            <span className="absolute bottom-4 left-0 right-0 text-center text-[11px] text-white/80 font-medium px-3">
+              Tap to play with sound
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Filename footer */}
+      <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
+        <Video className="w-4 h-4 text-slate-500 shrink-0" />
+        <p className="text-[12px] text-slate-600 font-medium truncate">{video.name}</p>
+      </div>
+
+      {/* Remove button */}
+      <div className="px-3 pb-3 pt-2">
+        <button
+          type="button"
+          onClick={onRemove}
+          className="w-full py-2 flex items-center justify-center gap-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 active:bg-rose-200 transition-colors text-xs font-bold border border-rose-100"
+        >
+          <Trash2 className="w-4 h-4" />
+          <span>Remove</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const SubmitChallengeForm: React.FC = () => {
   const {
     currentUser,
@@ -817,12 +924,33 @@ export const SubmitChallengeForm: React.FC = () => {
   if (step === 5) {
     const activeTrackingId = submittedChallengeId || submittedChallengeDbId || 'JH-2026-REGISTRATION';
 
-    const handleCopyTrackingId = () => {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(activeTrackingId);
+    const handleCopyTrackingId = async () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(activeTrackingId);
+          setCopiedTrackingId(true);
+          showToast('info', 'Copied!', `Tracking ID ${activeTrackingId} copied to clipboard.`);
+          setTimeout(() => setCopiedTrackingId(false), 3000);
+          return;
+        }
+      } catch {
+        // Fallback below
+      }
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = activeTrackingId;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
         setCopiedTrackingId(true);
-        showToast('info', 'Copied!', 'Tracking ID copied to clipboard.');
+        showToast('info', 'Copied!', `Tracking ID ${activeTrackingId} copied to clipboard.`);
         setTimeout(() => setCopiedTrackingId(false), 3000);
+      } catch {
+        showToast('info', 'Tracking Code', activeTrackingId);
       }
     };
 
@@ -840,7 +968,7 @@ export const SubmitChallengeForm: React.FC = () => {
             Problem Report Submitted Successfully! ✓
           </h1>
           <p className="text-sm text-slate-600 max-w-md mx-auto">
-            Your complaint has been successfully registered.
+            Your complaint has been registered. Save your official tracking code below to monitor progress.
           </p>
         </div>
 
@@ -853,23 +981,23 @@ export const SubmitChallengeForm: React.FC = () => {
             </span>
           </div>
 
-          <div className="flex items-center justify-between gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-            <div className="text-xl sm:text-2xl font-mono font-black text-emerald-950 tracking-wide select-all text-left">
+          <div className="flex items-center justify-between gap-2 p-4 bg-slate-900 rounded-2xl border border-slate-800 text-white shadow-inner">
+            <div className="text-xl sm:text-2xl font-mono font-black text-amber-400 tracking-wider select-all text-left">
               {activeTrackingId}
             </div>
             <button
               type="button"
               onClick={handleCopyTrackingId}
-              className="p-2 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 rounded-xl transition-all flex items-center gap-1 text-xs font-bold shrink-0 cursor-pointer"
+              className="p-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 rounded-xl transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 cursor-pointer"
               title="Copy Tracking ID"
             >
-              {copiedTrackingId ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+              {copiedTrackingId ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
               <span>{copiedTrackingId ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
 
           <p className="text-xs text-slate-500 font-medium text-left">
-            Keep this ID to track the progress of your complaint.
+            Keep this reference code safe. You can track problem verification, department assignment, and field solution progress anytime.
           </p>
 
           <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-left flex items-center justify-between gap-3">
@@ -912,126 +1040,33 @@ export const SubmitChallengeForm: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setCurrentView('citizen-dashboard')}
+            onClick={() => {
+              setStep(1);
+              setProblemTitle('');
+              setWhatIsHappening('');
+              setAffectedPeopleCount('');
+              setDistrict('');
+              setBlock('');
+              setVillage('');
+              setPhotos([]);
+              setOtherFiles([]);
+            }}
             className="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-950 font-bold text-sm rounded-xl border border-slate-300 cursor-pointer transition-colors"
           >
-            Back to Dashboard
+            Report Another Problem
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCurrentView('citizen-dashboard')}
+            className="w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-950 font-bold text-sm rounded-xl border border-slate-200 cursor-pointer transition-colors"
+          >
+            Dashboard
           </button>
         </div>
       </div>
     );
   }
-
-  // ─── VideoEvidenceCard ──────────────────────────────────────────────────────
-  // Renders a single recorded/uploaded video inside the evidence grid.
-  // Preview state: autoplay, muted, loop (browser-safe).
-  // After user click: full controls, unmuted, plays with sound — stays in card.
-  const VideoEvidenceCard: React.FC<{
-    video: AttachedFile;
-    isInteractive: boolean;
-    onActivate: () => void;
-    onRemove: () => void;
-  }> = useCallback(
-    ({ video, isInteractive, onActivate, onRemove }) => {
-      const cardVideoRef = useRef<HTMLVideoElement>(null);
-
-      // Autoplay as muted preview whenever the card first mounts or src changes
-      useEffect(() => {
-        const el = cardVideoRef.current;
-        if (!el || !video.url) return;
-        el.src = video.url;
-        el.muted = true;
-        el.loop = true;
-        el.playsInline = true;
-        el.load();
-        const playPromise = el.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // Autoplay blocked — still fine, user can click to play
-          });
-        }
-      }, [video.url]);
-
-      // When user activates interactive mode: unmute and show controls
-      useEffect(() => {
-        const el = cardVideoRef.current;
-        if (!el) return;
-        if (isInteractive) {
-          el.muted = false;
-          el.loop = false;
-          const playPromise = el.play();
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {});
-          }
-        }
-      }, [isInteractive]);
-
-      const handleClick = () => {
-        if (!isInteractive) {
-          onActivate();
-        }
-      };
-
-      return (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
-          <div
-            className={`relative w-full aspect-[4/3] bg-slate-900 overflow-hidden ${!isInteractive ? 'cursor-pointer' : ''}`}
-            onClick={handleClick}
-          >
-            <video
-              ref={cardVideoRef}
-              className="w-full h-full object-cover"
-              playsInline
-              muted
-              loop
-              preload="auto"
-              {...(isInteractive ? { controls: true } : {})}
-            />
-
-            {/* Video badge — always visible */}
-            <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/70 backdrop-blur-sm text-[11px] font-bold text-white shadow pointer-events-none">
-              <Video className="w-3.5 h-3.5 text-amber-400" />
-              <span>Video</span>
-            </div>
-
-            {/* Click-to-play hint overlay — only shown in preview (muted) state */}
-            {!isInteractive && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-black/40 rounded-full p-3 backdrop-blur-sm">
-                  <svg className="w-8 h-8 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-                <span className="absolute bottom-4 left-0 right-0 text-center text-[11px] text-white/80 font-medium px-3">
-                  Tap to play with sound
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Filename footer */}
-          <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
-            <Video className="w-4 h-4 text-slate-500 shrink-0" />
-            <p className="text-[12px] text-slate-600 font-medium truncate">{video.name}</p>
-          </div>
-
-          {/* Remove button */}
-          <div className="px-3 pb-3 pt-2">
-            <button
-              type="button"
-              onClick={onRemove}
-              className="w-full py-2 flex items-center justify-center gap-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 active:bg-rose-200 transition-colors text-xs font-bold border border-rose-100"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Remove</span>
-            </button>
-          </div>
-        </div>
-      );
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6 font-sans-body">

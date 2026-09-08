@@ -6,6 +6,7 @@ import { Footer } from './components/common/Footer';
 import { ToastProvider } from './context/ToastContext';
 import { AuthModal } from './components/common/AuthModal';
 import { AIChatWidget } from './components/ai/AIChatWidget';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 // Standalone Public & Auth Pages
 import { LandingPage } from './components/public/LandingPage';
@@ -344,7 +345,9 @@ export default function App() {
   return (
     <ToastProvider>
       <AppProvider>
-        <AppContent />
+        <ErrorBoundary fallbackTitle="Jharkhand Innovation Connect">
+          <AppContent />
+        </ErrorBoundary>
         <AIChatWidget />
       </AppProvider>
     </ToastProvider>

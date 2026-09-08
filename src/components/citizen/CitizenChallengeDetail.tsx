@@ -718,7 +718,7 @@ export const CitizenChallengeDetail: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {challenge.evidence.map((ev) => (
+            {(challenge.evidence || []).map((ev) => (
               <div
                 key={ev.id}
                 onClick={() => setActivePhotoModal(ev)}
@@ -772,7 +772,7 @@ export const CitizenChallengeDetail: React.FC = () => {
                 Official Supporting Documents
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {challenge.evidence
+                {(challenge.evidence || [])
                   .filter((e) => e.type === 'document')
                   .map((doc) => (
                     <a

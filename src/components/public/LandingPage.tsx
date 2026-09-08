@@ -54,41 +54,8 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Links & Login / Register Button */}
+          {/* Right Login / Register Button */}
           <div className="flex items-center gap-4 sm:gap-8">
-            <nav className="hidden md:flex items-center gap-7 text-xs sm:text-sm font-medium text-slate-200">
-              <button
-                onClick={() => setCurrentView('how-it-works')}
-                className="hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                About Us
-              </button>
-              <button
-                onClick={() => setCurrentView('how-it-works')}
-                className="hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                How It Works
-              </button>
-              <button
-                onClick={() => setCurrentView('impact')}
-                className="hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                Impact
-              </button>
-              <button
-                onClick={() => setCurrentView('universities')}
-                className="hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                Resources
-              </button>
-              <button
-                onClick={() => setCurrentView('industry')}
-                className="hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                Contact
-              </button>
-            </nav>
-
             <button
               type="button"
               onClick={handleEnterPortal}

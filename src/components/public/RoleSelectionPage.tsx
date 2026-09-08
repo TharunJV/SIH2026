@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { UserRole } from '../../types';
 import { JharkhandEmblem } from '../common/JharkhandEmblem';
@@ -160,6 +160,23 @@ export const RoleSelectionPage: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<RoleCardData>(FOUR_ROLES[0]);
   const [isAuthPanelOpen, setIsAuthPanelOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const aboutRef = useRef<HTMLDivElement>(null);
+
+  // Close "About the Platform" dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (aboutRef.current && !aboutRef.current.contains(event.target as Node)) {
+        setIsAboutOpen(false);
+      }
+    };
+    if (isAboutOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isAboutOpen]);
 
   // Quick Login Form State inside the panel
   const [identifier, setIdentifier] = useState('');
@@ -248,14 +265,155 @@ export const RoleSelectionPage: React.FC = () => {
 
         {/* Right Navigation */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <button
-            type="button"
-            onClick={() => setCurrentView('how-it-works')}
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-950 hover:bg-amber-100/60 rounded-xl transition-colors cursor-pointer"
-          >
-            <HelpCircle className="w-4 h-4 text-slate-500" />
-            <span>About the Platform</span>
-          </button>
+          <div className="relative" ref={aboutRef}>
+            <button
+              type="button"
+              onClick={() => setIsAboutOpen(!isAboutOpen)}
+              aria-expanded={isAboutOpen}
+              aria-label="Toggle About the Platform information"
+              className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl border transition-all cursor-pointer ${
+                isAboutOpen
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                  : 'bg-white/90 hover:bg-white text-slate-700 hover:text-slate-950 border-slate-300 shadow-xs'
+              }`}
+            >
+              <HelpCircle className={`w-4 h-4 ${isAboutOpen ? 'text-amber-400' : 'text-slate-500'}`} />
+              <span>About the Platform</span>
+            </button>
+
+            {/* Notification-style spacious dropdown panel */}
+            {isAboutOpen && (
+              <div className="absolute right-0 mt-3 w-[92vw] sm:w-[580px] md:w-[640px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200/90 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 text-left">
+                {/* Clean Neutral Header (No Green Palette) */}
+                <div className="px-5 sm:px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-xs">
+                      <Sparkles className="w-4 h-4 text-amber-500" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm sm:text-base text-slate-900 leading-tight">About JH Innovation Connect</h4>
+                      <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5">Government of Jharkhand • Collaborative Innovation Portal</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAboutOpen(false)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition-colors cursor-pointer"
+                    title="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Body Content */}
+                <div className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                  <p className="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                    <strong className="text-slate-950 font-semibold">JH Innovation Connect</strong> is the official statewide collaboration platform bridging citizens, academic researchers, industries, and district administration to crowdsource, engineer, and deploy high-impact solutions across all 24 districts of Jharkhand.
+                  </p>
+
+                  {/* 4 Collaborative Roles in 2x2 Grid */}
+                  <div className="space-y-2.5 pt-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
+                        Ecosystem Roles & Capabilities
+                      </span>
+                      <span className="text-[11px] text-slate-500 font-medium">4 Integrated Portals</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Citizen */}
+                      <div className="p-3.5 rounded-xl bg-amber-50/40 border border-amber-200/70 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center text-amber-700">
+                              <Users className="w-3.5 h-3.5" />
+                            </div>
+                            <h5 className="font-bold text-xs sm:text-sm text-slate-900">Citizens & PRIs</h5>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            Report village or urban civic problems with GPS tagging and photographic evidence. Track progress from triage to resolution.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* University */}
+                      <div className="p-3.5 rounded-xl bg-emerald-50/40 border border-emerald-200/70 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
+                              <GraduationCap className="w-3.5 h-3.5" />
+                            </div>
+                            <h5 className="font-bold text-xs sm:text-sm text-slate-900">Universities & Students</h5>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            Interdisciplinary student teams and faculty advisors adopt filed challenges, build prototypes, and submit formal proposals.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Industry */}
+                      <div className="p-3.5 rounded-xl bg-blue-50/40 border border-blue-200/70 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700">
+                              <Building2 className="w-3.5 h-3.5" />
+                            </div>
+                            <h5 className="font-bold text-xs sm:text-sm text-slate-900">Industry & CSR</h5>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            Fund high-priority grassroots innovations via Section 135 CSR grants, provide industrial mentorship, and deploy commercial solutions.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Government */}
+                      <div className="p-3.5 rounded-xl bg-purple-50/40 border border-purple-200/70 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
+                              <Landmark className="w-3.5 h-3.5" />
+                            </div>
+                            <h5 className="font-bold text-xs sm:text-sm text-slate-900">Government of Jharkhand</h5>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            District collectors and state nodal officers monitor heatmaps, validate solution milestones, and scale proven pilots statewide.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Highlights Strip */}
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-xs sm:text-sm font-bold text-slate-900">24 Districts</p>
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium">Statewide Coverage</p>
+                    </div>
+                    <div className="border-x border-slate-200">
+                      <p className="text-xs sm:text-sm font-bold text-slate-900">AI Triage</p>
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium">Smart Classification</p>
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-bold text-slate-900">Section 135</p>
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium">CSR Collaboration</p>
+                    </div>
+                  </div>
+
+                  {/* Footer Action */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>Select any role in the portal to continue</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsAboutOpen(false)}
+                      className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors cursor-pointer"
+                    >
+                      Got it
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           <button
             type="button"

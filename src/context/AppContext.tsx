@@ -563,9 +563,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             openForSolutions: local.openForSolutions,
             currentStage: local.currentStage,
             timeline:
-              local.timeline && local.timeline.length > incoming.timeline.length
+              local.timeline && local.timeline.length > (incoming.timeline?.length || 0)
                 ? local.timeline
-                : incoming.timeline,
+                : (incoming.timeline || []),
           };
         }
         return incoming;

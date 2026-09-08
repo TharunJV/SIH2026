@@ -101,73 +101,65 @@ export const aiService = {
 
   /**
    * Sends user query to the AI server /chat endpoint.
-   * Target endpoint: POST /chat with { "message": string }
+   * Target endpoint: POST /api/chat with { "message": string }
    * Returns { response: string, provider: string }
    */
   sendChatMessage: async (message: string): Promise<{ response: string; provider: string }> => {
-    const defaultPort = import.meta.env.VITE_AI_SERVER_URL || 'http://127.0.0.1:8001';
-    const cleanUrl = defaultPort.replace(/\/$/, '');
+    const endpoints = [
+      '/api/chat',
+      '/chat',
+      import.meta.env.VITE_AI_SERVER_URL ? `${import.meta.env.VITE_AI_SERVER_URL.replace(/\/$/, '')}/chat` : null,
+    ].filter(Boolean) as string[];
 
-    try {
-      const response = await fetch(`${cleanUrl}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: message.trim() }),
-      });
+    let lastError: any = null;
 
-      if (response.ok) {
-        const data = await response.json();
-        return {
-          response: data.response || 'No response returned from AI.',
-          provider: data.provider || 'gemini',
-        };
-      }
-
-      let errorDetail = 'Failed to get response from AI server';
+    for (const url of endpoints) {
       try {
-        const errorData = await response.json();
-        if (errorData.detail) errorDetail = errorData.detail;
-      } catch {
-        errorDetail = `Server returned status ${response.status}: ${response.statusText}`;
-      }
-      throw new Error(errorDetail);
-    } catch (primaryErr: any) {
-      // Fallback try port 8000 if 8001 wasn't specified via env
-      if (!import.meta.env.VITE_AI_SERVER_URL && cleanUrl.includes('8001')) {
-        try {
-          const fallbackRes = await fetch('http://127.0.0.1:8000/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message.trim() }),
-          });
-          if (fallbackRes.ok) {
-            const data = await fallbackRes.json();
-            return {
-              response: data.response || 'No response returned from AI.',
-              provider: data.provider || 'gemini',
-            };
-          }
-        } catch {
-          // Ignore and rethrow primary error
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: message.trim() }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return {
+            response: data.response || 'No response returned from AI.',
+            provider: data.provider || 'gemini',
+          };
         }
+
+        let errorDetail = 'Failed to get response from AI server';
+        try {
+          const errorData = await response.json();
+          if (errorData.detail) errorDetail = errorData.detail;
+          else if (errorData.error) errorDetail = errorData.error;
+        } catch {
+          errorDetail = `Server returned status ${response.status}: ${response.statusText}`;
+        }
+        lastError = new Error(errorDetail);
+      } catch (err) {
+        lastError = err;
       }
-      throw primaryErr;
     }
+
+    throw lastError || new Error('Unable to connect to SolveSphere AI service.');
   },
 
   /**
-   * Checks health of the AI server: GET /health
+   * Checks health of the AI server: GET /api/ai-health or /health
    */
   checkHealth: async (): Promise<{ status: string; service: string; primary?: string; fallback?: string } | null> => {
     const urls = [
-      import.meta.env.VITE_AI_SERVER_URL || 'http://127.0.0.1:8001',
-      'http://127.0.0.1:8000',
-    ];
+      '/api/ai-health',
+      '/api/health',
+      '/health',
+      import.meta.env.VITE_AI_SERVER_URL ? `${import.meta.env.VITE_AI_SERVER_URL.replace(/\/$/, '')}/health` : null,
+    ].filter(Boolean) as string[];
 
     for (const rawUrl of urls) {
       try {
-        const cleanUrl = rawUrl.replace(/\/$/, '');
-        const response = await fetch(`${cleanUrl}/health`, {
+        const response = await fetch(rawUrl, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });

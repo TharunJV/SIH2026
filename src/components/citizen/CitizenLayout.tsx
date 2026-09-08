@@ -2,6 +2,7 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { JharkhandEmblem } from '../common/JharkhandEmblem';
 import { Footer } from '../common/Footer';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 import {
   LayoutDashboard,
   PlusCircle,
@@ -310,7 +311,9 @@ export const CitizenLayout: React.FC<CitizenLayoutProps> = ({ children }) => {
 
         {/* Main Content Pane */}
         <main className="flex-1 min-w-0 pb-20 lg:pb-8">
-          {children}
+          <ErrorBoundary fallbackTitle="Citizen View Error" onReset={() => setCurrentView('citizen-dashboard')}>
+            {children}
+          </ErrorBoundary>
         </main>
       </div>
 
